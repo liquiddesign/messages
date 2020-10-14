@@ -1,0 +1,29 @@
+parameters:
+	langs:
+		'cz': ''
+		'en': '_en'
+
+services:
+	- Tracy\Debugger::getBar
+	- Nette\Caching\Storages\DevNullStorage
+	- Nette\Application\LinkGenerator
+	routing.router: Nette\Application\Routers\RouteList
+	- Nette\Http\Request
+	- Nette\Http\Response
+	- Nette\Http\UrlScript
+
+
+messages:
+	test: 'testujemea'
+
+storm:
+	debug: true
+	connections:
+		default:
+			host: 127.0.0.1
+			dbname: _test_messages
+			user: root
+			password: ""
+			driver: mysql
+			charset: utf8
+			collate: utf8_czech_ci

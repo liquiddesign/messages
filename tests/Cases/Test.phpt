@@ -1,0 +1,23 @@
+<?php
+
+namespace Messages\Tests\Cases;
+
+use Messages\Tests\Bootstrap;
+use Tester\Assert;
+use Tester\TestCase;
+
+/**
+ * Class Test
+ * @package Tests
+ */
+class Test extends TestCase
+{
+	public function testExists(): void
+	{
+		$container = Bootstrap::createContainer();
+		
+		Assert::notNull($container->getByType(\Messages\DB\TemplateRepository::class));
+	}
+}
+
+(new Test())->run();

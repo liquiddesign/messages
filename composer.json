@@ -3,7 +3,11 @@
 	"description": "✉ Služba pro generování zpráv pro Nette Mailer ze šablon z databáze",
 	"license": "MIT",
 	"autoload": {
-		"psr-4": {"Messages\\": "src/"}
+		"psr-4": {"Messages\\": "src/"},
+		"classmap": []
+	},
+	"autoload-dev": {
+		"psr-4": { "Messages\\Tests\\": "tests/" }
 	},
 	"require" :
 	{
@@ -27,12 +31,15 @@
 		"tracy/tracy":"*",
 		"composer/composer": "*",
 		"liquiddesign/codestyle": "@dev",
+		"liquiddesign/migrator": "@dev",
 		"phpstan/phpstan": "*"
 	},
 	"scripts": {
 		"phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
 		"phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
 		"phpcsfix": "phpcbf --standard=ruleset.xml --ignore=assets src",
-		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php"
+		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
+		"aux-sync-database": "Migrator\\Scripts::syncDatabase",
+		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap"
 	}
 }

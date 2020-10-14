@@ -52,7 +52,7 @@ class Template extends Entity
 	public string $type;
 	
 	/**
-	 * @column{"default":1}
+	 * @column{"default":"1"}
 	 */
 	public bool $active = true;
 	
