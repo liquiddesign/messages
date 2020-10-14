@@ -2,6 +2,8 @@
 
 namespace Messages\Tests\Cases;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Messages\Tests\Bootstrap;
 use Tester\Assert;
 use Tester\TestCase;
