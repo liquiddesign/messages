@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
-use _HumbugBoxaf515cad4e15\Nette\Neon\Exception;
+use Nette\Neon\Exception;
 use Latte\Loaders\StringLoader;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
