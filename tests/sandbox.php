@@ -9,4 +9,5 @@ $container = \Messages\Tests\Bootstrap::createContainer();
 /** @var \Messages\DB\TemplateRepository $repoTemplate */
 $repoTemplate = $container->getByType(\Messages\DB\TemplateRepository::class);
 
-echo $repoTemplate->getTest();
+
+dump($repoTemplate->createMessage("subscribedInfo", ["test"=>"Ahojky!!!"], "petr@lqd.cz"));

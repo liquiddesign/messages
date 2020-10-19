@@ -14,7 +14,17 @@ services:
 
 
 messages:
-	test: 'testujemea'
+	email: 'petr@lqd.cz'
+	alias: 'Petr Krehlik'
+	templateMapping:
+		rootPaths:
+			DB: 0
+			src: 1
+		directory: templates
+		filemask: "email-%s.latte"
+	templates:
+		messages:
+			- subscribedInfo
 
 storm:
 	debug: true
@@ -27,3 +37,6 @@ storm:
 			driver: mysql
 			charset: utf8
 			collate: utf8_czech_ci
+			mutations:
+				'cz':'_cz'
+				'en':'_en'

@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
+use _HumbugBoxaf515cad4e15\Nette\Neon\Exception;
 use Latte\Loaders\StringLoader;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
+use Nette\IOException;
 use Nette\Mail\Message;
+use Nette\Utils\FileSystem;
+use Nette\Utils\Validators;
 use StORM\DIConnection;
+use StORM\Exception\NotExistsException;
 use StORM\Repository;
 use StORM\SchemaManager;
 
@@ -18,27 +23,27 @@ class TemplateRepository extends Repository
 	
 	private ITemplateFactory $templateFactory;
 	
-	private string $test = '';
+	/**
+	 * @var mixed[]
+	 */
+	private array $config;
 	
 	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, ITemplateFactory $templateFactory)
 	{
 		parent::__construct($connection, $schemaManager);
-
+		
 		$this->linkGenerator = $linkGenerator;
 		$this->templateFactory = $templateFactory;
+		$this->schemaManager = $schemaManager;
 	}
 	
-	public function setTest(string $test): void
+	public function setUp(?array $config): void
 	{
-		$this->test = $test;
+		if ($config === null) {
+			return;
+		}
 		
-		//@TODO remove this
-		return;
-	}
-	
-	public function getTest(): string
-	{
-		return $this->test;
+		$this->config = $config;
 	}
 	
 	public function createMessage(string $id, array $params, ?string $email = null): Message
@@ -50,29 +55,66 @@ class TemplateRepository extends Repository
 		
 		require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
 		
+		/** @var \Messages\DB\Template|null $message */
 		$message = $this->one($id, false);
-
+		
 		if (!$message) {
 			$message = new Template([]);
-			$file = $this->getFileTemplate();
-
+			$file = $this->getFileTemplate($id);
+			
 			if (!$file) {
 				throw new \InvalidArgumentException();
 			}
+
+			$html = $template->renderToString($file, $params + ['message' => $message]);
+			
+			try {
+				$message->getValue('type');
+			} catch (NotExistsException $e) {
+				throw new Exception('Missing parameter "type" in template file!');
+			}
+			
+			try {
+				$message->getValue('cc');
+			} catch (NotExistsException $e) {
+				$message->cc=null;
+			}
 		} else {
-			//@TODO
+			$html = $template->renderToString($message->html, $params + ['message' => $message]);
 		}
 		
-		$html = $template->renderToString('--{$test}--{do $message->subject = "test"}', $params + ['message' => $message]);
-		
-		\dump($message);
 		$mail = new Message();
+		
+		$mailAddress = $this->config['email'] ?: $message->email;
+		$alias = $this->config['alias'] ?: $message->alias;
+		
+		if ($message->type === 'outgoing') {
+			$mail->setFrom($mailAddress, $alias);
+			$mail->addTo($email);
+		} else {
+			$mail->setFrom($email);
+			$mail->addTo($mailAddress, $alias);
+		}
+		
+		if ($message->cc !== null) {
+			foreach (\explode(';', $message->cc) as $item) {
+				$email = \trim($item);
+				
+				if (!Validators::isEmail($email)) {
+					continue;
+				}
+				
+				$mail->addCc($email);
+			}
+		}
+		
+		$mail->setSubject($message->subject ?: '');
+		
 		$mail->setHtmlBody($html);
-		$mail->addTo($email);
 		
 		return $mail;
 	}
-
+	
 	private function createTemplate(): \Nette\Bridges\ApplicationLatte\Template
 	{
 		/** @var \Nette\Bridges\ApplicationLatte\Template $template */
@@ -83,9 +125,29 @@ class TemplateRepository extends Repository
 		return $template;
 	}
 	
-	private function getFileTemplate(): string
+	private function getFileTemplate(string $fileName): ?string
 	{
-		//@TODO IMPLEMENT
-		return '';
+		//@TODO spravna logika?
+		$directoryLevel = \max($this->config["templateMapping"]->rootPaths);
+		
+		$filePath = \dirname(__DIR__, $directoryLevel);
+		$filePath .= \DIRECTORY_SEPARATOR;
+		$filePath .= $this->config["templateMapping"]->directory;
+		$filePath .= \DIRECTORY_SEPARATOR;
+		$filePath .= $fileName;
+		$filePath .= '.latte';
+		
+		try {
+			$fileContent = FileSystem::read($filePath);
+		} catch (IOException $e) {
+			return null;
+		}
+		
+		return $fileContent;
+	}
+	
+	private function createDbRecord(Message $message): void
+	{
+		//@TODO
 	}
 }
