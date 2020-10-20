@@ -11,11 +11,6 @@ use StORM\Entity;
  */
 class Template extends Entity
 {
-	/**
-	 * @column
-	 * @pk
-	 */
-	public string $uuid;
 	
 	/**
 	 * @column

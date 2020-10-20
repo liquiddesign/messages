@@ -1,6 +1,8 @@
 {do $message->name = 'test_upload'}
-{do $message->subject = 'Děkujeme za ulozeni do databaze!'}
+{do $message->subject = ['en' => 'en subject', 'cz'=> 'cz subject']}
 {do $message->type = 'outgoing'}
 {do $message->email = 'out@lqd.cz'}
+{do $message->text = ['en' => 'en text', 'cz'=> 'cz text']}
+{do $message->html = ['en' => 'en html {*$test*}', 'cz'=> 'cz html {*$test*} aa']}
 
-Test nahrani sablony {$test}
+{$test}

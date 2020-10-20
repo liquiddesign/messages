@@ -10,10 +10,12 @@ use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
 use Nette\IOException;
 use Nette\Mail\Message;
+use Nette\Utils\ArrayList;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Validators;
 use StORM\DIConnection;
 use StORM\Exception\NotExistsException;
+use StORM\Exception\NotFoundException;
 use StORM\Repository;
 use StORM\SchemaManager;
 
@@ -112,7 +114,7 @@ class TemplateRepository extends Repository
 				if ($this->defaultEmail === null) {
 					throw new \InvalidArgumentException("No email specified!");
 				}
-
+				
 				$mailAddress = $this->defaultEmail;
 			}
 			
@@ -125,11 +127,11 @@ class TemplateRepository extends Repository
 			if ($message->layout !== null) {
 				$html = "{block email_co}" . $message->html . "{/block}";
 				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask);
-
+				
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
-
+				
 				$html = $template->renderToString($html . $globalLayout, $params + ['message' => $message]);
 			} else {
 				$html = $template->renderToString($message->html, $params + ['message' => $message]);
@@ -173,7 +175,7 @@ class TemplateRepository extends Repository
 		
 		try {
 			$text = $message->getValue("text");
-
+			
 			if ($text !== null) {
 				$body = $template->renderToString($text, $params + ['message' => $message]);
 				$mail->setBody($body);
@@ -195,16 +197,27 @@ class TemplateRepository extends Repository
 		$path = \dirname(__DIR__, $rootLevel) . \DIRECTORY_SEPARATOR . "templates" . \DIRECTORY_SEPARATOR;
 		
 		foreach ($this->dbTemplates as $item) {
-			$message = new Template([], $this);
-			$message->uuid = DIConnection::generateUuid();
+			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
-			$message->html = $template->renderToString($fileContent, $params + ['message' => $message]);
+			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message]);
+			foreach ($this->schemaManager->getConnection()->getAvailableMutations() as $key => $value) {
+				try {
+					$message->html[$key] = str_replace(["{*", "*}"], ["{", "}"], $message->html[$key]) . $htmlTemplateRendered;
+				} catch (NotExistsException $ignored) {
+				}
+			}
+			try {
+				$item = $this->one(["name" => $message->name]);
+				$item->update($message->getArrayCopy());
+			} catch (NotFoundException $e) {
+				$this->createOne($message->getArrayCopy());
+			}
 			
-			//@TODO nefunguje lokalizace
-			$this->createOne($message);
+			
+			
 		}
 	}
-
+	
 	private function createTemplate(): \Nette\Bridges\ApplicationLatte\Template
 	{
 		/** @var \Nette\Bridges\ApplicationLatte\Template $template */
@@ -221,13 +234,13 @@ class TemplateRepository extends Repository
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}
 		
-		if (\count($this->rootPaths)===0) {
+		if (\count($this->rootPaths) === 0) {
 			$this->rootPaths = ["src" => 0, "app" => 1];
 		}
 		
 		$filePath = \dirname(__DIR__, $rootLevel);
 		$filePath .= \DIRECTORY_SEPARATOR;
-
+		
 		foreach ($this->rootPaths as $key => $value) {
 			$filePath .= $key;
 			$filePath .= \DIRECTORY_SEPARATOR;
