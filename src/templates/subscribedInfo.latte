@@ -1,7 +1,6 @@
-{do $message->subject = 'Děkujeme za odběr novinek'}
+{do $message->name = 'test_upload'}
+{do $message->subject = 'Děkujeme za ulozeni do databaze!'}
 {do $message->type = 'outgoing'}
+{do $message->email = 'out@lqd.cz'}
 
-{include email_co}
-
-
-Děkujeme na odběr novinek!.
+Test nahrani sablony {$test}

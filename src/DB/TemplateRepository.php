@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
+use Exception;
 use Latte\Loaders\StringLoader;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
 use Nette\IOException;
 use Nette\Mail\Message;
-use Nette\Neon\Exception;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Validators;
 use StORM\DIConnection;
@@ -23,10 +23,25 @@ class TemplateRepository extends Repository
 	
 	private ITemplateFactory $templateFactory;
 	
+	private ?string $defaultEmail;
+	
+	private ?string $alias;
+	
 	/**
 	 * @var mixed[]
 	 */
-	private array $config;
+	private array $rootPaths;
+	
+	private string $directory;
+	
+	private string $fileMask;
+	
+	/**
+	 * @var mixed[]
+	 */
+	private array $dbTemplates;
+	
+	private string $globalFileMask;
 	
 	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, ITemplateFactory $templateFactory)
 	{
@@ -37,16 +52,26 @@ class TemplateRepository extends Repository
 		$this->schemaManager = $schemaManager;
 	}
 	
-	public function setUp(?array $config): void
+	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
 	{
-		if ($config === null) {
-			return;
-		}
-		
-		$this->config = $config;
+		$this->defaultEmail = $defaultEmail;
+		$this->alias = $alias;
 	}
 	
-	public function createMessage(string $id, array $params, ?string $email = null): Message
+	public function setTemplateMapping(array $rootPaths, string $directory, string $fileMask, string $globalFileMask): void
+	{
+		$this->rootPaths = $rootPaths;
+		$this->directory = $directory;
+		$this->fileMask = $fileMask;
+		$this->globalFileMask = $globalFileMask;
+	}
+	
+	public function setDbTemplates(?array $templates): void
+	{
+		$this->dbTemplates = $templates;
+	}
+	
+	public function createMessage(string $id, array $params, ?string $email = null): ?Message
 	{
 		
 		$template = $this->createTemplate();
@@ -61,23 +86,13 @@ class TemplateRepository extends Repository
 		
 		if (!$message) {
 			$message = new Template([]);
-			$file = $this->getFileTemplate($id, $rootLevel);
+			$file = $this->getFileTemplate($id, $rootLevel, $this->fileMask);
 			
 			if (!$file) {
 				throw new \InvalidArgumentException('Template file not found!');
 			}
 			
 			$html = $template->renderToString($file, $params + ['message' => $message]);
-			
-			try {
-				if ($message->getValue("active")) {
-					if ($message->active != 1) {
-						return null;
-					}
-				}
-			} catch (NotExistsException $e) {
-				return null;
-			}
 			
 			try {
 				$message->getValue('type');
@@ -94,40 +109,42 @@ class TemplateRepository extends Repository
 			try {
 				$mailAddress = $message->getValue('email');
 			} catch (NotExistsException $e) {
-				if ($this->config['email'] === null) {
+				if ($this->defaultEmail === null) {
 					throw new \InvalidArgumentException("No email specified!");
 				}
-				
-				$mailAddress = $this->config['email'];
+
+				$mailAddress = $this->defaultEmail;
 			}
 			
 			try {
 				$alias = $message->getValue('alias');
 			} catch (NotExistsException $e) {
-				$alias = $this->config['alias'] ?? '';
+				$alias = $this->alias ?: '';
 			}
 		} else {
-			$html = $template->renderToString($message->html, $params + ['message' => $message]);
+			if ($message->layout !== null) {
+				$html = "{block email_co}" . $message->html . "{/block}";
+				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask);
+
+				if (!$globalLayout) {
+					throw new \InvalidArgumentException('Global template file not found!');
+				}
+
+				$html = $template->renderToString($html . $globalLayout, $params + ['message' => $message]);
+			} else {
+				$html = $template->renderToString($message->html, $params + ['message' => $message]);
+			}
 			
-			if ($message->active != 1) {
+			$mailAddress = $message->email ?: ($this->defaultEmail ?: '');
+			$alias = $message->alias ?: ($this->alias ?: '');
+		}
+		
+		try {
+			if ($message->getValue("active") !== true) {
 				return null;
 			}
-			
-			if ($message->email !== null) {
-				$mailAddress = $message->email;
-			} elseif ($this->config['email'] !== null) {
-				$mailAddress = $this->config['email'];
-			} else {
-				throw new \InvalidArgumentException("No email specified!");
-			}
-			
-			if ($message->alias !== null) {
-				$alias = $message->alias;
-			} elseif ($this->config['alias'] !== null) {
-				$alias = $this->config['alias'];
-			} else {
-				$alias = '';
-			}
+		} catch (NotExistsException $e) {
+			return null;
 		}
 		
 		$mail = new Message();
@@ -136,7 +153,7 @@ class TemplateRepository extends Repository
 			$mail->setFrom($mailAddress, $alias);
 			$mail->addTo($email);
 		} else {
-			$mail->setFrom($email ?: $this->config['email']);
+			$mail->setFrom($email ?: $this->defaultEmail, $email ?: $this->defaultEmail);
 			$mail->addTo($mailAddress, $alias);
 		}
 		
@@ -156,11 +173,11 @@ class TemplateRepository extends Repository
 		
 		try {
 			$text = $message->getValue("text");
+
 			if ($text !== null) {
 				$body = $template->renderToString($text, $params + ['message' => $message]);
 				$mail->setBody($body);
 			}
-			
 		} catch (NotExistsException $ignored) {
 		}
 		
@@ -169,6 +186,25 @@ class TemplateRepository extends Repository
 		return $mail;
 	}
 	
+	public function updateDatabaseTemplates(array $params = []): void
+	{
+		$template = $this->createTemplate();
+		
+		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
+		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath) - 1;
+		$path = \dirname(__DIR__, $rootLevel) . \DIRECTORY_SEPARATOR . "templates" . \DIRECTORY_SEPARATOR;
+		
+		foreach ($this->dbTemplates as $item) {
+			$message = new Template([], $this);
+			$message->uuid = DIConnection::generateUuid();
+			$fileContent = FileSystem::read($path . $item . '.latte');
+			$message->html = $template->renderToString($fileContent, $params + ['message' => $message]);
+			
+			//@TODO nefunguje lokalizace
+			$this->createOne($message);
+		}
+	}
+
 	private function createTemplate(): \Nette\Bridges\ApplicationLatte\Template
 	{
 		/** @var \Nette\Bridges\ApplicationLatte\Template $template */
@@ -179,26 +215,27 @@ class TemplateRepository extends Repository
 		return $template;
 	}
 	
-	private function getFileTemplate(string $fileName, int $rootLevel): ?string
+	private function getFileTemplate(string $fileName, int $rootLevel, ?string $mask = null): ?string
 	{
-		if (\strpos($this->config["templateMapping"]->filemask, '%s') === false) {
+		if ($mask !== null && \strpos($this->fileMask, '%s') === false) {
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}
 		
-		if (empty($this->config["templateMapping"]->rootPaths)) {
-			$this->config["templateMapping"]->rootPaths = ["src" => 0, "app" => 1];
+		if (\count($this->rootPaths)===0) {
+			$this->rootPaths = ["src" => 0, "app" => 1];
 		}
 		
 		$filePath = \dirname(__DIR__, $rootLevel);
 		$filePath .= \DIRECTORY_SEPARATOR;
-		foreach ($this->config["templateMapping"]->rootPaths as $key => $value) {
+
+		foreach ($this->rootPaths as $key => $value) {
 			$filePath .= $key;
 			$filePath .= \DIRECTORY_SEPARATOR;
 		}
 		
-		$filePath .= $this->config["templateMapping"]->directory;
+		$filePath .= $this->directory;
 		$filePath .= \DIRECTORY_SEPARATOR;
-		$filePath .= $this->config["templateMapping"]->filemask;
+		$filePath .= $mask;
 		
 		$filePath = \str_replace('%s', $fileName, $filePath);
 		

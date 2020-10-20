@@ -20,6 +20,8 @@ messages:
 		rootPaths:
 			tests: 0
 		directory: template
+		fileMask: email-%s.latte # for specific email templates - multiple files can use one global template
+		globalFileMask: global-%s.latte # for global email templates
 	templates:
 		messages:
 			- subscribedInfo
@@ -38,3 +40,4 @@ storm:
 			mutations:
 				'cz':'_cz'
 				'en':'_en'
+			primaryKeyGenerator: StORM\DIConnection::generateUuid

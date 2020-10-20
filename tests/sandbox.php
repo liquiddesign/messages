@@ -17,3 +17,5 @@ dump($repoTemplate->createMessage("test", ["test"=>"Helloooo!!!"], "petr@lqd.cz"
 echo "3\n";
 $tmp=($repoTemplate->createMessage("test_i", ["test"=>"Helloooo!!!"]));
 dump($tmp->getHeaders());
+
+$repoTemplate->updateDatabaseTemplates(["test"=>"Ahoj databaze!!!"]);

@@ -16,11 +16,12 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 			'alias' => Expect::string(),
 			'templateMapping' => Expect::structure([
 				'rootPaths' => Expect::array(),
-				'directory' => Expect::string("templates"),
-				'filemask' => Expect::string("email-%s.latte"),
+				'directory' => Expect::string('templates'),
+				'fileMask' => Expect::string('email-%s.latte'),
+				'globalFileMask' => Expect::string('global-%s.latte'),
 			]),
 			'templates' => Expect::structure([
-				'messages' => Expect::list([]),
+				'messages' => Expect::array(),
 			]),
 		]);
 	}
@@ -33,7 +34,14 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 		$builder = $this->getContainerBuilder();
 		
 		$pages = $builder->addDefinition($this->prefix('db'))->setType(\Messages\DB\TemplateRepository::class);
-		$pages->addSetup('setUp', [$config]);
+		$pages->addSetup('setEmailAndAlias', [$config['email'], $config['alias']]);
+		$pages->addSetup('setTemplateMapping', [
+			$config['templateMapping']->rootPaths,
+			$config['templateMapping']->directory,
+			$config['templateMapping']->fileMask,
+			$config['templateMapping']->globalFileMask,
+		]);
+		$pages->addSetup('setDbTemplates', [$config['templates']->messages]);
 		
 		return;
 	}

@@ -7,10 +7,16 @@ namespace Messages\DB;
 use StORM\Entity;
 
 /**
- * @table{"name":"messages_email"}
+ * @table{"name":"messages_template"}
  */
 class Template extends Entity
 {
+	/**
+	 * @column
+	 * @pk
+	 */
+	public string $uuid;
+	
 	/**
 	 * @column
 	 */
