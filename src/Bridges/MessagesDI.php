@@ -20,7 +20,7 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'filemask' => Expect::string("email-%s.latte"),
 			]),
 			'templates' => Expect::structure([
-				'messages' => Expect::list(),
+				'messages' => Expect::list([]),
 			]),
 		]);
 	}

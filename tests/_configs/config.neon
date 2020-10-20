@@ -14,14 +14,12 @@ services:
 
 
 messages:
-	email: 'petr@lqd.cz'
-	alias: 'Petr Krehlik'
+	email: 'config@lqd.cz'
+	alias: 'Config Krehlik'
 	templateMapping:
 		rootPaths:
-			DB: 0
-			src: 1
-		directory: templates
-		filemask: "email-%s.latte"
+			tests: 0
+		directory: template
 	templates:
 		messages:
 			- subscribedInfo

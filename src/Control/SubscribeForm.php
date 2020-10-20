@@ -16,5 +16,12 @@ class SubscribeForm extends Form
 		$this->addAntispam('');
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
+		
+	}
+	
+	public function render(...$args):void
+	{
+		$this->template->setFile(__DIR__ . '/'.basename(__FILE__, '.php').'.latte');
+		$this->template->render();
 	}
 }

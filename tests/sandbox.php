@@ -10,4 +10,7 @@ $container = \Messages\Tests\Bootstrap::createContainer();
 $repoTemplate = $container->getByType(\Messages\DB\TemplateRepository::class);
 
 
-dump($repoTemplate->createMessage("subscribedInfo", ["test"=>"Ahojky!!!"], "petr@lqd.cz"));
+dump($repoTemplate->createMessage("testFile", ["test"=>"Ahojky!!!"], "petr@lqd.cz"));
+dump($repoTemplate->createMessage("test", ["test"=>"Helloooo!!!"], "petr@lqd.cz"));
+$tmp=($repoTemplate->createMessage("test_i", ["test"=>"Helloooo!!!"]));
+dump($tmp->getHeaders());
