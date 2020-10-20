@@ -70,6 +70,16 @@ class TemplateRepository extends Repository
 			$html = $template->renderToString($file, $params + ['message' => $message]);
 			
 			try {
+				if ($message->getValue("active")) {
+					if ($message->active != 1) {
+						return null;
+					}
+				}
+			} catch (NotExistsException $e) {
+				return null;
+			}
+			
+			try {
 				$message->getValue('type');
 			} catch (NotExistsException $e) {
 				throw new Exception('Missing parameter "type" in template file!');
@@ -98,6 +108,10 @@ class TemplateRepository extends Repository
 			}
 		} else {
 			$html = $template->renderToString($message->html, $params + ['message' => $message]);
+			
+			if ($message->active != 1) {
+				return null;
+			}
 			
 			if ($message->email !== null) {
 				$mailAddress = $message->email;
