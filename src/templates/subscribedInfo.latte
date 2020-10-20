@@ -3,6 +3,6 @@
 {do $message->type = 'outgoing'}
 {do $message->email = 'out@lqd.cz'}
 {do $message->text = ['en' => 'en text', 'cz'=> 'cz text']}
-{do $message->html = ['en' => 'en html {*$test*}', 'cz'=> 'cz html {*$test*} aa']}
+{do $message->html = ['en' => 'en html {$test}', 'cz'=> 'cz html {$test} aa']}
 
 {$test}
