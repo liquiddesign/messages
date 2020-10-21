@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
-use Exception;
 use Latte\Loaders\StringLoader;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
@@ -117,7 +116,7 @@ class TemplateRepository extends Repository
 			try {
 				$message->getValue('type');
 			} catch (NotExistsException $e) {
-				throw new Exception('Missing parameter "type" in template file!');
+				$message->type = 'outgoing';
 			}
 			
 			try {

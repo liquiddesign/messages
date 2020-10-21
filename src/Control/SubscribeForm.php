@@ -17,7 +17,8 @@ class SubscribeForm extends Form
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
-		//@TODO doplnit onSubmit
-		// ulozit do databaze email
+		$this->onSubmit[]= function (Form $form){
+		
+		};
 	}
 }
