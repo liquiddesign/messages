@@ -94,7 +94,7 @@ class TemplateRepository extends Repository
 		require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
 		
 		/** @var \Messages\DB\Template|null $message */
-		$message = $this->one($id, false);
+		$message = $this->one(["name"=>$id], false);
 		
 		if (!$message) {
 			$message = new Template([]);
@@ -108,7 +108,7 @@ class TemplateRepository extends Repository
 			
 			try {
 				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
-				$html = $template->renderToString("{block email_co}" . $html . "{/block} " . $globalLayout, $params + ['message' => $message]);
+				$html = $template->renderToString("{define email_co}" . $html . "{/define} " . $globalLayout, $params + ['message' => $message]);
 			} catch (NotExistsException $ignored) {
 			}
 			
@@ -141,14 +141,14 @@ class TemplateRepository extends Repository
 			}
 		} else {
 			if ($message->layout !== null) {
-				$html = "{block email_co}" . $message->html . "{/block}";
+				$html = "{define email_co}" . $message->html . "{/define}";
 				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
 				
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 				
-				$html = $template->renderToString($html . $globalLayout, $params + ['message' => $message]);
+				$html = $template->renderToString($globalLayout.$html, $params + ['message' => $message]);
 			} else {
 				$html = $template->renderToString($message->html, $params + ['message' => $message]);
 			}
@@ -221,10 +221,6 @@ class TemplateRepository extends Repository
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
 			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message]);
-			
-			$globalTemplateContent = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
-			
-			$htmlTemplateRendered .= $template->renderToString("{block email_co}" . $htmlTemplateRendered . "{/block}" . $globalTemplateContent, $params + ['message' => $message]);
 			
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$message->html[$key] .= $htmlTemplateRendered;

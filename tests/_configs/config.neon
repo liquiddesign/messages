@@ -31,6 +31,7 @@ messages:
 		messages:
 			- subscribedInfo
 			- contactInfo
+			- contact
 
 storm:
 	debug: true

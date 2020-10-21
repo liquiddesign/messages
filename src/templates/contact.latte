@@ -1,0 +1,10 @@
+{do $message->name = 'contact'}
+{do $message->subject = ['en' => 'New message!', 'cz'=> 'Nová zpráva!']}
+{do $message->type = 'incoming'}
+{do $message->email = 'petr@lqd.cz'}
+{do $message->alias = 'Liquid Design'}
+{do $message->layout = 'lqd'}
+{do $message->html = [
+'en' => 'Hello,\n you recieved new message.Message:\n{ifset $text}{$text}{/ifset}{include footer_en}',
+'cz'=> 'Dobrý den,\n obdrželi jste novou zprávu.\nText zprávy:\n{ifset $text}{$text}{/ifset}{include footer_cz}}'
+]}
