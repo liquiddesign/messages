@@ -16,5 +16,8 @@ class SubscribeForm extends Form
 		$this->addAntispam('');
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
+		
+		//@TODO doplnit onSubmit
+		// ulozit do databaze email
 	}
 }
