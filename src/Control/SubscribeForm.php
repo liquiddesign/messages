@@ -16,7 +16,5 @@ class SubscribeForm extends Form
 		$this->addAntispam('');
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
-		
-		
 	}
 }

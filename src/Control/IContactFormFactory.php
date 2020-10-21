@@ -8,8 +8,8 @@ use Forms\Form;
 
 abstract class IContactFormFactory
 {
-	static function create(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null): Form
+	public static function create(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null): Form
 	{
-		return new ContactForm($parent,$name);
+		return new ContactForm($parent, $name);
 	}
 }

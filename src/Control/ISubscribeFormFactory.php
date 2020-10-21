@@ -8,8 +8,8 @@ use Forms\Form;
 
 abstract class ISubscribeFormFactory
 {
-	static function create(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null): Form
+	public static function create(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null): Form
 	{
-		return new SubscribeForm($parent,$name);
+		return new SubscribeForm($parent, $name);
 	}
 }
