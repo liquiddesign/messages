@@ -15,7 +15,7 @@ dump($repoTemplate->createMessage("testFile", ["test"=>"Ahojky!!!"], "petr@lqd.c
 echo "2\n";
 dump($repoTemplate->createMessage("test", ["test"=>"Helloooo!!!"], "petr@lqd.cz"));
 echo "3\n";
-$tmp=($repoTemplate->createMessage("test_i", ["test"=>"Helloooo!!!"]));
+$tmp=($repoTemplate->createMessage("test_i", []));
 dump($tmp->getHeaders());
 
 $repoTemplate->updateDatabaseTemplates(["test"=>"Ahoj databaze!!!"]);
