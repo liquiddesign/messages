@@ -18,5 +18,7 @@ class ContactForm extends Form
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
+		//@TODO doplnit onSubmit
+		//odeslat emaily jak spravci tak zakaznikovi
 	}
 }
