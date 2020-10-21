@@ -6,10 +6,7 @@ namespace Messages\Control;
 
 use Forms\Form;
 
-abstract class ISubscribeFormFactory
+interface ISubscribeFormFactory
 {
-	public static function create(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null): Form
-	{
-		return new SubscribeForm($parent, $name);
-	}
+	public function create(): Form;
 }

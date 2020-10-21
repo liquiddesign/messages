@@ -13,7 +13,6 @@ use Nette\Utils\FileSystem;
 use Nette\Utils\Validators;
 use StORM\DIConnection;
 use StORM\Exception\NotExistsException;
-use StORM\Exception\NotFoundException;
 use StORM\Repository;
 use StORM\SchemaManager;
 
@@ -223,15 +222,20 @@ class TemplateRepository extends Repository
 			$fileContent = FileSystem::read($path . $item . '.latte');
 			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message]);
 			
+			$globalTemplateContent = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
+			
+			$htmlTemplateRendered .= $template->renderToString("{block email_co}" . $htmlTemplateRendered . "{/block}" . $globalTemplateContent, $params + ['message' => $message]);
+			
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$message->html[$key] .= $htmlTemplateRendered;
 			}
 			
-			try {
-				$item = $this->one(["name" => $message->name]);
-				$item->update($message->getArrayCopy());
-			} catch (NotFoundException $e) {
+			$item = $this->one(["name" => $message->name]);
+
+			if ($item === null) {
 				$this->createOne($message->getArrayCopy());
+			} else {
+				$item->update($message->getArrayCopy());
 			}
 		}
 	}

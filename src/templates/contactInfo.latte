@@ -1,0 +1,10 @@
+{do $message->name = 'contact'}
+{do $message->subject = ['en' => 'We recieved your message', 'cz'=> 'Potvrzení přijetí zprávy']}
+{do $message->type = 'outgoing'}
+{do $message->email = 'contact@lqd.cz'}
+{do $message->alias = 'Liquid Design'}
+{do $message->layout = 'lqd'}
+{do $message->html = [
+'en' => 'Hello,\n we recieved your message.',
+'cz'=> 'Dobrý den,\n Vaše zpráva byla přijata.'
+]}

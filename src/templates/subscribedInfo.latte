@@ -1,14 +1,10 @@
-{do $message->name = 'test_upload'}
-{do $message->subject = ['en' => 'Subject', 'cz'=> 'Předmět']}
+{do $message->name = 'subscribedInfo'}
+{do $message->subject = ['en' => 'Subscribe confirmation', 'cz'=> 'Potvrzení odběru']}
 {do $message->type = 'outgoing'}
-{do $message->email = 'out@lqd.cz'}
-{do $message->text = [
-'en' => 'English text',
-'cz'=> 'Czech text'
-]}
+{do $message->email = 'contact@lqd.cz'}
+{do $message->alias = 'Liquid Design'}
+{do $message->layout = 'lqd'}
 {do $message->html = [
-'en' => 'en html {$test}',
-'cz'=> 'cz html {$test}'
+'en' => 'Hello,\n we accepted your subscribe.',
+'cz'=> 'Dobrý den,\n potvrzujeme Váš odběr.'
 ]}
-DEFAULT HTML  (PRIMARY MUTATION)
-{$test}

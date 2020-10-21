@@ -11,17 +11,18 @@ services:
 	- Nette\Http\Request
 	- Nette\Http\Response
 	- Nette\Http\UrlScript
-
+	- Messages\Control\ISubscribeFormFactory
+	- Messages\Control\IContactFormFactory
 
 messages:
 	email: 'config@lqd.cz'
 	alias: 'Config Krehlik'
 	templateMapping:
 		rootPaths:
-			tests: 0
-		directory: template
+			src: 0
+		directory: templates
 		fileMask: email-%s.latte # for specific email templates - multiple files can use one global template
-		globalDirectory: globalTemplates
+		globalDirectory: templates
 		globalFileMask: global-%s.latte # for global email templates
 	templates:
 		rootPaths:
@@ -29,6 +30,7 @@ messages:
 			templates: 1
 		messages:
 			- subscribedInfo
+			- contactInfo
 
 storm:
 	debug: true

@@ -40,6 +40,8 @@
 		"phpcsfix": "phpcbf --standard=ruleset.xml --ignore=assets src",
 		"tester": "tester tests/Cases/*.phpt  -c tests/php.ini --setup tests/setup.php",
 		"aux-sync-database": "Migrator\\Scripts::syncDatabase",
-		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap"
+		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
+		"aux-update-templates": "Messages\\Scripts::createTemplates",
+		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap"
 	}
 }

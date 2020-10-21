@@ -12,7 +12,7 @@ class ContactForm extends Form
 	{
 		parent::__construct($parent, $name);
 		
-		$this->addText('email');
+		$this->addText('email')->setRequired()->addRule($this::EMAIL);
 		$this->addText("message");
 		$this->addAntispam('');
 		$this->addDoubleClickProtection();
@@ -20,5 +20,9 @@ class ContactForm extends Form
 		
 		//@TODO doplnit onSubmit
 		//odeslat emaily jak spravci tak zakaznikovi
+		
+		$this->onSubmit[] = function (Form $form): void {
+			$values = $form->getValues();
+		};
 	}
 }

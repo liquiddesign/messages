@@ -4,7 +4,6 @@ namespace Messages;
 
 use Composer\Script\Event;
 use Messages\DB\TemplateRepository;
-use StORM\DIConnection;
 
 class Scripts
 {
@@ -20,7 +19,11 @@ class Scripts
 		
 		$container = \method_exists($class, 'createContainer') ? $class::createContainer() : $class::boot()->createContainer();
 		
-		//@TODO doplnit vytvoreni DB zaznamu dle konfigu a template
+		//@TODO predavani argumentu pro sablony?
+		
+		/** @var \Messages\DB\TemplateRepository $templates */
 		$templates = $container->getByType(TemplateRepository::class);
+		
+		$templates->updateDatabaseTemplates($arguments);
 	}
 }
