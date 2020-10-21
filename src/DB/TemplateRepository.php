@@ -10,7 +10,6 @@ use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
 use Nette\IOException;
 use Nette\Mail\Message;
-use Nette\Utils\ArrayList;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Validators;
 use StORM\DIConnection;
@@ -43,7 +42,14 @@ class TemplateRepository extends Repository
 	 */
 	private array $dbTemplates;
 	
+	/**
+	 * @var mixed[]
+	 */
+	private array $dbRootPaths;
+	
 	private string $globalFileMask;
+	
+	private string $globalDirectory;
 	
 	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, ITemplateFactory $templateFactory)
 	{
@@ -54,23 +60,29 @@ class TemplateRepository extends Repository
 		$this->schemaManager = $schemaManager;
 	}
 	
-	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
+	public function setEmailAndAlias(string $defaultEmail, string $alias): void
 	{
 		$this->defaultEmail = $defaultEmail;
 		$this->alias = $alias;
 	}
 	
-	public function setTemplateMapping(array $rootPaths, string $directory, string $fileMask, string $globalFileMask): void
+	public function setTemplateMapping(array $rootPaths, string $directory, string $fileMask): void
 	{
 		$this->rootPaths = $rootPaths;
 		$this->directory = $directory;
 		$this->fileMask = $fileMask;
+	}
+	
+	public function setGlobalTemplateMapping(string $globalDirectory, string $globalFileMask): void
+	{
+		$this->globalDirectory = $globalDirectory;
 		$this->globalFileMask = $globalFileMask;
 	}
 	
-	public function setDbTemplates(?array $templates): void
+	public function setDbTemplates(array $templates, array $dbRootPaths): void
 	{
 		$this->dbTemplates = $templates;
+		$this->dbRootPaths = $dbRootPaths;
 	}
 	
 	public function createMessage(string $id, array $params, ?string $email = null): ?Message
@@ -88,13 +100,19 @@ class TemplateRepository extends Repository
 		
 		if (!$message) {
 			$message = new Template([]);
-			$file = $this->getFileTemplate($id, $rootLevel, $this->fileMask);
+			$file = $this->getFileTemplate($id, $rootLevel, $this->fileMask, $this->rootPaths, $this->directory);
 			
 			if (!$file) {
 				throw new \InvalidArgumentException('Template file not found!');
 			}
 			
 			$html = $template->renderToString($file, $params + ['message' => $message]);
+			
+			try {
+				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
+				$html = $template->renderToString("{block email_co}" . $html . "{/block} " . $globalLayout, $params + ['message' => $message]);
+			} catch (NotExistsException $ignored) {
+			}
 			
 			try {
 				$message->getValue('type');
@@ -126,7 +144,7 @@ class TemplateRepository extends Repository
 		} else {
 			if ($message->layout !== null) {
 				$html = "{block email_co}" . $message->html . "{/block}";
-				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask);
+				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
 				
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
@@ -193,28 +211,29 @@ class TemplateRepository extends Repository
 		$template = $this->createTemplate();
 		
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
-		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath) - 1;
-		$path = \dirname(__DIR__, $rootLevel) . \DIRECTORY_SEPARATOR . "templates" . \DIRECTORY_SEPARATOR;
+		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
+		$path = \dirname(__DIR__, $rootLevel) . \DIRECTORY_SEPARATOR;
+		
+		foreach (\array_keys($this->dbRootPaths) as $key) {
+			$path .= $key;
+			$path .= \DIRECTORY_SEPARATOR;
+		}
 		
 		foreach ($this->dbTemplates as $item) {
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
 			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message]);
-			foreach ($this->schemaManager->getConnection()->getAvailableMutations() as $key => $value) {
-				try {
-					$message->html[$key] = str_replace(["{*", "*}"], ["{", "}"], $message->html[$key]) . $htmlTemplateRendered;
-				} catch (NotExistsException $ignored) {
-				}
+			
+			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
+				$message->html[$key] .= $htmlTemplateRendered;
 			}
+			
 			try {
 				$item = $this->one(["name" => $message->name]);
 				$item->update($message->getArrayCopy());
 			} catch (NotFoundException $e) {
 				$this->createOne($message->getArrayCopy());
 			}
-			
-			
-			
 		}
 	}
 	
@@ -228,25 +247,34 @@ class TemplateRepository extends Repository
 		return $template;
 	}
 	
-	private function getFileTemplate(string $fileName, int $rootLevel, ?string $mask = null): ?string
+	/**
+	 * Open file based on parameters.
+	 * @param string $fileName Name of file. Will be processed with mask.
+	 * @param int $rootLevel Count to server root.
+	 * @param string $mask Mask of file. Example: 'prefix-%s.latte'
+	 * @param array $rootPaths Path from server root to directory.
+	 * @param string $directory Name of directory.
+	 * @return string|null Content of file or null on error.
+	 */
+	private function getFileTemplate(string $fileName, int $rootLevel, string $mask, array $rootPaths, string $directory): ?string
 	{
-		if ($mask !== null && \strpos($this->fileMask, '%s') === false) {
+		if (\strpos($this->fileMask, '%s') === false) {
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}
 		
-		if (\count($this->rootPaths) === 0) {
-			$this->rootPaths = ["src" => 0, "app" => 1];
+		if (\count($rootPaths) === 0) {
+			$rootPaths = ["src" => 0, "app" => 1];
 		}
 		
 		$filePath = \dirname(__DIR__, $rootLevel);
 		$filePath .= \DIRECTORY_SEPARATOR;
 		
-		foreach ($this->rootPaths as $key => $value) {
+		foreach (\array_keys($rootPaths) as $key) {
 			$filePath .= $key;
 			$filePath .= \DIRECTORY_SEPARATOR;
 		}
 		
-		$filePath .= $this->directory;
+		$filePath .= $directory;
 		$filePath .= \DIRECTORY_SEPARATOR;
 		$filePath .= $mask;
 		

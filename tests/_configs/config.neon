@@ -21,8 +21,12 @@ messages:
 			tests: 0
 		directory: template
 		fileMask: email-%s.latte # for specific email templates - multiple files can use one global template
+		globalDirectory: globalTemplates
 		globalFileMask: global-%s.latte # for global email templates
 	templates:
+		rootPaths:
+			src: 0
+			templates: 1
 		messages:
 			- subscribedInfo
 

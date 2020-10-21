@@ -1,8 +1,14 @@
 {do $message->name = 'test_upload'}
-{do $message->subject = ['en' => 'en subject', 'cz'=> 'cz subject']}
+{do $message->subject = ['en' => 'Subject', 'cz'=> 'Předmět']}
 {do $message->type = 'outgoing'}
 {do $message->email = 'out@lqd.cz'}
-{do $message->text = ['en' => 'en text', 'cz'=> 'cz text']}
-{do $message->html = ['en' => 'en html {$test}', 'cz'=> 'cz html {$test} aa']}
+{do $message->text = [
+'en' => 'English text',
+'cz'=> 'Czech text'
+]}
+{do $message->html = [
+'en' => 'en html {$test}',
+'cz'=> 'cz html {$test}'
+]}
 
 {$test}

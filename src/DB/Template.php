@@ -11,7 +11,6 @@ use StORM\Entity;
  */
 class Template extends Entity
 {
-	
 	/**
 	 * @column
 	 */

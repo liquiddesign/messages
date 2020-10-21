@@ -18,9 +18,11 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'rootPaths' => Expect::array(),
 				'directory' => Expect::string('templates'),
 				'fileMask' => Expect::string('email-%s.latte'),
+				'globalDirectory' => Expect::string('globalTemplates'),
 				'globalFileMask' => Expect::string('global-%s.latte'),
 			]),
 			'templates' => Expect::structure([
+				'rootPaths' => Expect::array(["src"=>0,"templates"=>1]),
 				'messages' => Expect::array(),
 			]),
 		]);
@@ -39,9 +41,15 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 			$config['templateMapping']->rootPaths,
 			$config['templateMapping']->directory,
 			$config['templateMapping']->fileMask,
+		]);
+		$pages->addSetup('setGlobalTemplateMapping', [
+			$config['templateMapping']->globalDirectory,
 			$config['templateMapping']->globalFileMask,
 		]);
-		$pages->addSetup('setDbTemplates', [$config['templates']->messages]);
+		$pages->addSetup('setDbTemplates', [
+			$config['templates']->messages,
+			$config['templates']->rootPaths,
+		]);
 		
 		return;
 	}

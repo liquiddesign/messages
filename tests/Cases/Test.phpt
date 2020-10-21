@@ -19,6 +19,7 @@ class Test extends TestCase
 		$container = Bootstrap::createContainer();
 		
 		Assert::notNull($container->getByType(\Messages\DB\TemplateRepository::class));
+
 	}
 }
 
