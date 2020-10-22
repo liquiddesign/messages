@@ -19,35 +19,40 @@ class Test extends TestCase
 {
 	
 	/** @var \Messages\DB\TemplateRepository $templateRepository */
-    private $templateRepository;
-    
-    private Container $container;
-    
-    public function setUp(): void
-    {
-        $this->container = Bootstrap::createContainer();
+	private $templateRepository;
+	
+	private Container $container;
+	
+	public function setUp(): void
+	{
+		$this->container = Bootstrap::createContainer();
 		
-        $this->templateRepository = $this->container->getByType(\Messages\DB\TemplateRepository::class);
-    }
-    
+		$this->templateRepository = $this->container->getByType(\Messages\DB\TemplateRepository::class);
+	}
+	
 	public function testExists(): void
 	{
 		$container = Bootstrap::createContainer();
 		
 		Assert::notNull($container->getByType(\Messages\DB\TemplateRepository::class));
-
+		
+	}
+	
+	public function testLoadLatteTemplates(): void
+	{
+		Assert::notNull($this->templateRepository->createMessage("example", [], "nekdo@gmail.com"));
 	}
 	
 	public function testLoadDbTemplates(): void
 	{
-        Assert::notNull($this->templateRepository->createMessage("contact", ["text"=>"Ahojky!!!"], ));
+		Assert::notNull($this->templateRepository->createMessage("contact", ["text" => "Ahojky!!!"],));
 		Assert::notNull($this->templateRepository->createMessage("contactInfo", [], "petr@lqd.cz"));
 		
 	}
 	
 	public function testUpdateDbTemplates(): void
 	{
-		Assert::noError(function (){
+		Assert::noError(function () {
 			$this->templateRepository->updateDatabaseTemplates();
 		});
 	}

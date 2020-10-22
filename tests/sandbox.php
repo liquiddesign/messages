@@ -14,8 +14,10 @@ $repoTemplate = $container->getByType(\Messages\DB\TemplateRepository::class);
 //$repoTemplate->updateDatabaseTemplates(["test"=>"Ahoj databaze!!!"]);
 
 echo "1\n";
-dump($repoTemplate->createMessage("contact",["text"=>"Testovaci zprava"]));
+//dump($repoTemplate->createMessage("contact",["text"=>"Testovaci zprava"]));
 echo "2\n";
-dump($repoTemplate->createMessage("contactInfo",[],"nekdo@seznam.cz"));
+//dump($repoTemplate->createMessage("contactInfo",[],"nekdo@seznam.cz"));
+echo "3\n";
+dump($repoTemplate->createMessage("example", [], "nekdo@gmail.com"));
 
 

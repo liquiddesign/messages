@@ -20,9 +20,6 @@ class ContactForm extends Form
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
-		//@TODO doplnit onSubmit
-		//odeslat emaily jak spravci tak zakaznikovi
-		
 		$this->onSubmit[] = function (Form $form) use ($templateRepository): void {
 			$values = $form->getValues();
 			$mailer = new Nette\Mail\SendmailMailer();
