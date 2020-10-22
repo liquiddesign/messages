@@ -40,18 +40,15 @@ class Test extends TestCase
 	
 	public function testLoadDbTemplates(): void
 	{
-        Assert::notNull($this->templateRepository->createMessage("testFile", ["test"=>"Ahojky!!!"], "petr@lqd.cz"));
-		Assert::notNull($this->templateRepository->createMessage("test", ["test"=>"Helloooo!!!"], "petr@lqd.cz"));
-		Assert::notNull($this->templateRepository->createMessage("test_i", ["test"=>"Helloooo!!!"]));
-		$tmp=$this->templateRepository->createMessage("test_i", []);
-		Assert::notNull($tmp);
+        Assert::notNull($this->templateRepository->createMessage("contact", ["text"=>"Ahojky!!!"], ));
+		Assert::notNull($this->templateRepository->createMessage("contactInfo", [], "petr@lqd.cz"));
 		
 	}
 	
 	public function testUpdateDbTemplates(): void
 	{
 		Assert::noError(function (){
-			$this->templateRepository->updateDatabaseTemplates(["test"=>"Ahoj databaze!!!"]);
+			$this->templateRepository->updateDatabaseTemplates();
 		});
 	}
 	
@@ -67,7 +64,7 @@ class Test extends TestCase
 		/** @var \Messages\Control\IContactFormFactory $contactFormFactory */
 		$contactFormFactory = $this->container->getByType(IContactFormFactory::class);
 		
-		$form = $subscribeFormFactory->create();
+		$form = $contactFormFactory->create();
 		
 		Assert::notNull($form);
 	}

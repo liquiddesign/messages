@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Messages\Control;
 
+use Forms\Form;
 use Messages\DB\TemplateRepository;
 use Nette;
-use Forms\Form;
 
 class ContactForm extends Form
 {
@@ -23,7 +23,7 @@ class ContactForm extends Form
 		//@TODO doplnit onSubmit
 		//odeslat emaily jak spravci tak zakaznikovi
 		
-		$this->onSubmit[] = function (Form $form) use($templateRepository): void {
+		$this->onSubmit[] = function (Form $form) use ($templateRepository): void {
 			$values = $form->getValues();
 			$mailer = new Nette\Mail\SendmailMailer();
 
