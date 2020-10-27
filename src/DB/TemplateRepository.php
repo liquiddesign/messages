@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Messages\DB;
 
 use Latte\Loaders\StringLoader;
+use Latte\Sandbox\SecurityPolicy;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\ITemplateFactory;
 use Nette\IOException;
@@ -87,30 +88,39 @@ class TemplateRepository extends Repository
 	{
 		
 		$template = $this->createTemplate();
-		
+		$latte = $template->getLatte();
+		$policy = SecurityPolicy::createSafePolicy();
+		$policy->allowMacros(['include']);
+		$policy->allowProperties(\ArrayObject::class, (array)$policy::ALL);
+		$latte->setPolicy($policy);
+		$latte->setSandboxMode();
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
 		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
 		
-		require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
+		try {
+			require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
+		} catch (\ErrorException $e) {
+			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
+		}
 		
 		/** @var \Messages\DB\Template|null $message */
-		$message = $this->one(["name"=>$id], false);
+		$message = $this->one(["name" => $id], false);
 		
 		if (!$message) {
-			$messageArray = new \ArrayObject([],\ArrayObject::ARRAY_AS_PROPS);
+			$messageArray = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$file = $this->getFileTemplate($id, $rootLevel, $this->fileMask, $this->rootPaths, $this->directory);
 			
 			if (!$file) {
 				throw new \InvalidArgumentException('Template file not found!');
 			}
-			
+			//$messageArray=new Template([],$this,$this->getConnection()->getAvailableMutations());
 			$html = $template->renderToString($file, $params + ['message' => $messageArray]);
 			
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$messageArray->html[$key] .= $html;
 			}
 			
-			$message = new Template($messageArray->getArrayCopy(),$this,$this->getConnection()->getAvailableMutations(),$this->getConnection()->getMutation());
+			$message = new Template($messageArray->getArrayCopy(), $this, $this->getConnection()->getAvailableMutations(), $this->getConnection()->getMutation());
 			
 			try {
 				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
@@ -118,7 +128,7 @@ class TemplateRepository extends Repository
 			} catch (NotExistsException $ignored) {
 			}
 			
-			$html=$messageArray->html[$this->getConnection()->getMutation()];
+			$html = $messageArray->html[$this->getConnection()->getMutation()];
 			
 			try {
 				$message->getValue('type');
@@ -148,7 +158,7 @@ class TemplateRepository extends Repository
 				$alias = $this->alias ?: '';
 			}
 			
-			$message->subject=$messageArray->subject[$this->getConnection()->getMutation()];
+			$message->subject = $messageArray->subject[$this->getConnection()->getMutation()];
 			
 		} else {
 			if ($message->layout !== null) {
@@ -159,7 +169,7 @@ class TemplateRepository extends Repository
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 				
-				$html = $template->renderToString($globalLayout.$html, $params + ['message' => $message]);
+				$html = $template->renderToString($globalLayout . $html, $params + ['message' => $message]);
 			} else {
 				$html = $template->renderToString($message->html, $params + ['message' => $message]);
 			}
@@ -239,7 +249,7 @@ class TemplateRepository extends Repository
 			}
 			
 			$item = $this->one(["name" => $message->name]);
-
+			
 			if ($item === null) {
 				$this->createOne($message->getArrayCopy());
 			} else {
