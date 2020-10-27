@@ -100,7 +100,7 @@ class TemplateRepository extends Repository
 		if (\file_exists(\dirname(__DIR__, $rootLevel) . '/vendor/autoload.php')) {
 			require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
 		} else {
-			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath) - 1;
+			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
 		}
 		
 		/** @var \Messages\DB\Template|null $message */
@@ -281,7 +281,7 @@ class TemplateRepository extends Repository
 	 */
 	private function getFileTemplate(string $fileName, int $rootLevel, string $mask, array $rootPaths, string $directory): ?string
 	{
-		if (\strpos($this->fileMask, '%s') === false) {
+		if (\strpos($mask, '%s') === false) {
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}
 		
