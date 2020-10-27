@@ -124,11 +124,15 @@ class TemplateRepository extends Repository
 			
 			try {
 				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
-				$template->renderToString("{define email_co}" . $html . "{/define} " . $globalLayout, $params + ['message' => $message]);
+				
+				if (!$globalLayout) {
+					throw new \InvalidArgumentException('Global template file not found!');
+				}
+				
+				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout, $params + ['message' => $message]);
 			} catch (NotExistsException $ignored) {
+				$html = $messageArray->html[$this->getConnection()->getMutation()];
 			}
-			
-			$html = $messageArray->html[$this->getConnection()->getMutation()];
 			
 			try {
 				$message->getValue('type');
