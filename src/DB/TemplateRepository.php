@@ -113,7 +113,7 @@ class TemplateRepository extends Repository
 			if (!$file) {
 				throw new \InvalidArgumentException('Template file not found!');
 			}
-			//$messageArray=new Template([],$this,$this->getConnection()->getAvailableMutations());
+			
 			$html = $template->renderToString($file, $params + ['message' => $messageArray]);
 			
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
@@ -124,7 +124,7 @@ class TemplateRepository extends Repository
 			
 			try {
 				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
-				$html = $template->renderToString("{define email_co}" . $html . "{/define} " . $globalLayout, $params + ['message' => $message]);
+				$template->renderToString("{define email_co}" . $html . "{/define} " . $globalLayout, $params + ['message' => $message]);
 			} catch (NotExistsException $ignored) {
 			}
 			
@@ -159,7 +159,6 @@ class TemplateRepository extends Repository
 			}
 			
 			$message->subject = $messageArray->subject[$this->getConnection()->getMutation()];
-			
 		} else {
 			if ($message->layout !== null) {
 				$html = "{define email_co}" . $message->html . "{/define}";
@@ -176,7 +175,6 @@ class TemplateRepository extends Repository
 			
 			$mailAddress = $message->email ?: ($this->defaultEmail ?: '');
 			$alias = $message->alias ?: ($this->alias ?: '');
-			
 		}
 		
 		try {
