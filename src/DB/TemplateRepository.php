@@ -97,10 +97,10 @@ class TemplateRepository extends Repository
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
 		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
 		
-		try {
+		if (\file_exists(\dirname(__DIR__, $rootLevel) . '/vendor/autoload.php')) {
 			require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
-		} catch (\ErrorException $e) {
-			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
+		} else {
+			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath) - 1;
 		}
 		
 		/** @var \Messages\DB\Template|null $message */

@@ -8,3 +8,5 @@ Služba pro generování zpráv pro Nette Mailer ze šablon z databáze
 ☞ [Dropbox paper](https://paper.dropbox.com/doc/Messages--A9L2iCAckPxrssEBrtLFfO~lAg-Ys1ougYFs5QFVusokIN3z)
 
 ## TODO
+
+Templates contains in some cases too much '\n'.
