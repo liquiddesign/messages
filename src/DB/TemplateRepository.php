@@ -285,10 +285,6 @@ class TemplateRepository extends Repository
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}
 		
-		if (\count($rootPaths) === 0) {
-			$rootPaths = ["src" => 0, "app" => 1];
-		}
-		
 		$filePath = \dirname(__DIR__, $rootLevel);
 		$filePath .= \DIRECTORY_SEPARATOR;
 		
