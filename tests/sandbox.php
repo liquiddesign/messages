@@ -15,11 +15,6 @@ $repoTemplate = $container->getByType(\Messages\DB\TemplateRepository::class);
 
 $repoTemplate->getConnection()->setMutation("en");
 
-echo "1\n";
-dump($repoTemplate->createMessage("contact",["text"=>"Testovaci zprava123"]));
-echo "2\n";
-dump($repoTemplate->createMessage("contactInfo",[],"nekdo@seznam.cz"));
-echo "3\n";
 dump($repoTemplate->createMessage("example", [], "nekdo@gmail.com"));
 
 

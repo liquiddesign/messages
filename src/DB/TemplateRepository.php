@@ -30,25 +30,25 @@ class TemplateRepository extends Repository
 	/**
 	 * @var mixed[]
 	 */
-	private array $rootPaths;
+	private array $rootPaths = [];
 	
-	private string $directory;
+	private string $directory = 'templates';
 	
-	private string $fileMask;
-	
-	/**
-	 * @var mixed[]
-	 */
-	private array $dbTemplates;
+	private string $fileMask = 'email-%s.latte';
 	
 	/**
 	 * @var mixed[]
 	 */
-	private array $dbRootPaths;
+	private array $dbTemplates = [];
 	
-	private string $globalFileMask;
+	/**
+	 * @var mixed[]
+	 */
+	private array $dbRootPaths = [];
 	
-	private string $globalDirectory;
+	private string $globalFileMask = 'global-%s.latte';
+	
+	private string $globalDirectory = 'globalTemplates';
 	
 	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, ITemplateFactory $templateFactory)
 	{
@@ -59,7 +59,7 @@ class TemplateRepository extends Repository
 		$this->schemaManager = $schemaManager;
 	}
 	
-	public function setEmailAndAlias(string $defaultEmail, string $alias): void
+	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
 	{
 		$this->defaultEmail = $defaultEmail;
 		$this->alias = $alias;
