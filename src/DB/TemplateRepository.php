@@ -234,6 +234,13 @@ class TemplateRepository extends Repository
 		
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
 		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
+		
+		if (\file_exists(\dirname(__DIR__, $rootLevel) . '/vendor/autoload.php')) {
+			require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
+		} else {
+			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
+		}
+		
 		$path = \dirname(__DIR__, $rootLevel) . \DIRECTORY_SEPARATOR;
 		
 		foreach (\array_keys($this->dbRootPaths) as $key) {
