@@ -22,7 +22,7 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'globalFileMask' => Expect::string('global-%s.latte'),
 			]),
 			'templates' => Expect::structure([
-				'rootPaths' => Expect::array(["src"=>0,"templates"=>1]),
+				'rootPaths' => Expect::array(),
 				'messages' => Expect::array(),
 			]),
 		]);
