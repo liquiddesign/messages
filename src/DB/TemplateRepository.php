@@ -216,7 +216,7 @@ class TemplateRepository extends Repository
 		try {
 			$text = $message->getValue("text");
 			
-			if ($text !== null) {
+			if ($text !== null && $text !== '') {
 				$body = $template->renderToString($text, $params + ['message' => $message]);
 				$mail->setBody($body);
 			}
