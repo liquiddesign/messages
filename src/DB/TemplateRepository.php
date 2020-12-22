@@ -104,7 +104,7 @@ class TemplateRepository extends Repository
 		}
 		
 		/** @var \Messages\DB\Template|null $message */
-		$message = $this->one(["name" => $id], false);
+		$message = $this->one($id, false);
 		
 		if (!$message) {
 			$messageArray = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
@@ -257,7 +257,7 @@ class TemplateRepository extends Repository
 				$message->html[$key] .= $htmlTemplateRendered;
 			}
 			
-			$item = $this->one(["name" => $message->name]);
+			$item = $this->one($message->uuid);
 			
 			if ($item === null) {
 				$this->createOne($message->getArrayCopy());
