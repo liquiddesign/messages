@@ -29,7 +29,7 @@ class TemplateRepository extends Repository
 	
 	private ?string $alias;
 	
-	private ?string $absoluteBaseUrl;
+	private ?string $baseUrl;
 	
 	/**
 	 * @var mixed[]
@@ -62,7 +62,7 @@ class TemplateRepository extends Repository
 		$this->templateFactory = $templateFactory;
 		$this->schemaManager = $schemaManager;
 		
-		$this->absoluteBaseUrl = $request->getUrl()->getBaseUrl();
+		$this->baseUrl = $request->getUrl()->getBaseUrl();
 	}
 	
 	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
@@ -135,7 +135,7 @@ class TemplateRepository extends Repository
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 				
-				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout, $params + ['message' => $message, 'absoluteBaseUrl' => $this->absoluteBaseUrl]);
+				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			} catch (NotExistsException $ignored) {
 				$html = $messageArray->html[$this->getConnection()->getMutation()];
 			}
@@ -178,9 +178,9 @@ class TemplateRepository extends Repository
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 				
-				$html = $template->renderToString($globalLayout . $html, $params + ['message' => $message, 'absoluteBaseUrl' => $this->absoluteBaseUrl]);
+				$html = $template->renderToString($globalLayout . $html, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			} else {
-				$html = $template->renderToString($message->html, $params + ['message' => $message, 'absoluteBaseUrl' => $this->absoluteBaseUrl]);
+				$html = $template->renderToString($message->html, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			}
 			
 			$mailAddress = $message->email ?: ($this->defaultEmail ?: '');
@@ -227,7 +227,7 @@ class TemplateRepository extends Repository
 			$text = $message->getValue("text");
 			
 			if ($text !== null && $text !== '') {
-				$body = $template->renderToString($text, $params + ['message' => $message, 'absoluteBaseUrl' => $this->absoluteBaseUrl]);
+				$body = $template->renderToString($text, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 				$mail->setBody($body);
 			}
 		} catch (NotExistsException $ignored) {
@@ -261,7 +261,7 @@ class TemplateRepository extends Repository
 		foreach ($this->dbTemplates as $item) {
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
-			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message, 'absoluteBaseUrl' => $this->absoluteBaseUrl]);
+			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$message->html[$key] .= $htmlTemplateRendered;
