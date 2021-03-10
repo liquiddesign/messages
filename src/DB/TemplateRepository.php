@@ -62,7 +62,7 @@ class TemplateRepository extends Repository
 		$this->templateFactory = $templateFactory;
 		$this->schemaManager = $schemaManager;
 		
-		$this->absoluteBaseUrl = \substr($request->getUrl()->getAbsoluteUrl(), 0, - \strlen($request->getUrl()->getPathInfo()));
+		$this->absoluteBaseUrl = $request->getUrl()->getBaseUrl();
 	}
 	
 	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
