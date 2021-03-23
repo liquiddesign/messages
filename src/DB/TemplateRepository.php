@@ -98,6 +98,7 @@ class TemplateRepository extends Repository
 		$policy = SecurityPolicy::createSafePolicy();
 		$policy->allowMacros(['include']);
 		$policy->allowProperties(\ArrayObject::class, (array)$policy::ALL);
+		$policy->allowFilters(['price', 'date']);
 		$latte->setPolicy($policy);
 		$latte->setSandboxMode();
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
