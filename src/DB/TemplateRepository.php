@@ -90,7 +90,7 @@ class TemplateRepository extends Repository
 		$this->dbRootPaths = $dbRootPaths;
 	}
 	
-	public function createMessage(string $id, array $params, ?string $email = null, ?string $ccEmails = null): ?Message
+	public function createMessage(string $id, array $params, ?string $email = null, ?string $ccEmails = null, ?string $replyTo = null): ?Message
 	{
 		
 		$template = $this->createTemplate();
@@ -197,6 +197,10 @@ class TemplateRepository extends Repository
 		}
 		
 		$mail = new Message();
+		
+		if ($replyTo) {
+			$mail->addReplyTo($replyTo);
+		}
 		
 		if ($message->type === 'outgoing') {
 			$mail->setFrom($mailAddress, $alias);
