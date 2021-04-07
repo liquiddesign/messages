@@ -225,6 +225,18 @@ class TemplateRepository extends Repository
 				$mail->addCc($tmpEmail);
 			}
 		}
+
+		if ($message->replyTo !== null) {
+			foreach (\explode(';', $message->replyTo) as $item) {
+				$tmpEmail = \trim($item);
+
+				if (!Validators::isEmail($tmpEmail)) {
+					continue;
+				}
+
+				$mail->addReplyTo($tmpEmail);
+			}
+		}
 		
 		$mail->setSubject($message->subject ?: '');
 		

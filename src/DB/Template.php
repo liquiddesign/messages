@@ -35,6 +35,11 @@ class Template extends Entity
 	 * @column
 	 */
 	public ?string $cc;
+
+	/**
+	 * @column
+	 */
+	public ?string $replyTo;
 	
 	/**
 	 * @column
