@@ -23,12 +23,12 @@
 		"tracy/tracy":"*",
 		"liquiddesign/storm": "@dev",
 		"liquiddesign/forms": "@dev",
-		"ext-pdo": "*"
+		"ext-pdo": "*",
+		"sendgrid/sendgrid": "^4.0"
 	},
 	"require-dev": 
 	{
 		"nette/tester":"*",
-		"tracy/tracy":"*",
 		"composer/composer": "*",
 		"liquiddesign/codestyle": "@dev",
 		"liquiddesign/migrator": "@dev",

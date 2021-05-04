@@ -124,7 +124,9 @@ class TemplateRepository extends Repository
 			$html = $template->renderToString($file, $params + ['message' => $messageArray]);
 
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
-				$messageArray->html[$key] .= $html;
+				if (isset($messageArray->html[$key])) {
+					$messageArray->html[$key] .= $html;
+				}
 			}
 
 			$message = new Template($messageArray->getArrayCopy(), $this, $this->getConnection()->getAvailableMutations(), $this->getConnection()->getMutation());
@@ -134,6 +136,10 @@ class TemplateRepository extends Repository
 
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
+				}
+
+				if (!isset($messageArray->html[$this->getConnection()->getMutation()])) {
+					return null;
 				}
 
 				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
