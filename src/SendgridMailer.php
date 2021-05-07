@@ -50,8 +50,8 @@ class SendgridMailer implements Mailer
 		$email = new Email();
 
 		$from = $message->getFrom();
-		reset($from);
-		$key = key($from);
+		\reset($from);
+		$key = \key($from);
 
 		$email->setFrom($key)
 			->setFromName($from[$key])
@@ -62,7 +62,7 @@ class SendgridMailer implements Mailer
 
 		foreach ($message->getAttachments() as $attachement) {
 			$header = $attachement->getHeader('Content-Disposition');
-			preg_match('/filename\=\"(.*)\"/', $header, $result);
+			\preg_match('/filename\=\"(.*)\"/', $header, $result);
 			$originalFileName = $result[1];
 
 			$filePath = $this->saveTempAttachement($attachement->getBody());
@@ -94,8 +94,8 @@ class SendgridMailer implements Mailer
 	private function saveTempAttachement($body)
 	{
 		$filePath = $this->tempFolder . '/' . md5($body);
-		file_put_contents($filePath, $body);
-		array_push($this->tempFiles, $filePath);
+		\file_put_contents($filePath, $body);
+		\array_push($this->tempFiles, $filePath);
 
 		return $filePath;
 	}
@@ -103,7 +103,9 @@ class SendgridMailer implements Mailer
 	private function cleanUp()
 	{
 		foreach ($this->tempFiles as $file) {
-			unlink($file);
+			if (\is_file($file)) {
+				\unlink($file);
+			}
 		}
 	}
 
