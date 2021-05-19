@@ -54,6 +54,8 @@ class TemplateRepository extends Repository
 
 	private string $globalDirectory = 'globalTemplates';
 
+	private ?string $mutation = null;
+
 	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, Request $request, ITemplateFactory $templateFactory)
 	{
 		parent::__construct($connection, $schemaManager);
@@ -90,9 +92,16 @@ class TemplateRepository extends Repository
 		$this->dbRootPaths = $dbRootPaths;
 	}
 
-	public function createMessage(string $id, array $params, ?string $email = null, ?string $ccEmails = null, ?string $replyTo = null): ?Message
+	/**
+	 * @param string|null $mutation
+	 */
+	public function setMutation(?string $mutation): void
 	{
+		$this->mutation = $mutation;
+	}
 
+	public function createMessage(string $id, array $params, ?string $email = null, ?string $ccEmails = null, ?string $replyTo = null, ?string $mutation = null): ?Message
+	{
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
 		$policy = SecurityPolicy::createSafePolicy();
@@ -103,6 +112,16 @@ class TemplateRepository extends Repository
 		$latte->setSandboxMode();
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
 		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
+
+		if ($mutation) {
+			$prevMutation = $this->getConnection()->getMutation();
+			$this->getConnection()->setMutation($mutation);
+		}
+
+		if(!$mutation && $this->mutation){
+			$prevMutation = $this->getConnection()->getMutation();
+			$this->getConnection()->setMutation($this->mutation);
+		}
 
 		if (\file_exists(\dirname(__DIR__, $rootLevel) . '/vendor/autoload.php')) {
 			require \dirname(__DIR__, $rootLevel) . '/vendor/autoload.php';
@@ -263,6 +282,10 @@ class TemplateRepository extends Repository
 		}
 
 		$mail->setHtmlBody($html);
+
+		if ($mutation || (!$mutation && $this->mutation)) {
+			$this->getConnection()->setMutation($prevMutation);
+		}
 
 		return $mail;
 	}
