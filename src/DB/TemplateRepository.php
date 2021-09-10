@@ -56,8 +56,15 @@ class TemplateRepository extends Repository
 
 	private ?string $mutation = null;
 
-	public function __construct(DIConnection $connection, SchemaManager $schemaManager, LinkGenerator $linkGenerator, Request $request, ITemplateFactory $templateFactory)
-	{
+	private ?string $defaultMutation = null;
+
+	public function __construct(
+		DIConnection $connection,
+		SchemaManager $schemaManager,
+		LinkGenerator $linkGenerator,
+		Request $request,
+		ITemplateFactory $templateFactory
+	) {
 		parent::__construct($connection, $schemaManager);
 
 		$this->linkGenerator = $linkGenerator;
@@ -92,16 +99,24 @@ class TemplateRepository extends Repository
 		$this->dbRootPaths = $dbRootPaths;
 	}
 
-	/**
-	 * @param string|null $mutation
-	 */
 	public function setMutation(?string $mutation): void
 	{
 		$this->mutation = $mutation;
 	}
 
-	public function createMessage(string $id, array $params, ?string $email = null, ?string $ccEmails = null, ?string $replyTo = null, ?string $mutation = null): ?Message
+	public function setDefaultMutation(?string $mutation): void
 	{
+		$this->defaultMutation = $mutation;
+	}
+
+	public function createMessage(
+		string $id,
+		array $params,
+		?string $email = null,
+		?string $ccEmails = null,
+		?string $replyTo = null,
+		?string $mutation = null
+	): ?Message {
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
 		$policy = SecurityPolicy::createSafePolicy();
@@ -115,14 +130,19 @@ class TemplateRepository extends Repository
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
 		$rootLevel = \count($parsedPath) - \array_search('src', $parsedPath);
 
-		if ($mutation) {
+		if ($this->defaultMutation) {
 			$prevMutation = $this->getConnection()->getMutation();
-			$this->getConnection()->setMutation($mutation);
-		}
+			$this->getConnection()->setMutation($this->defaultMutation);
+		} else {
+			if ($mutation) {
+				$prevMutation = $this->getConnection()->getMutation();
+				$this->getConnection()->setMutation($mutation);
+			}
 
-		if(!$mutation && $this->mutation){
-			$prevMutation = $this->getConnection()->getMutation();
-			$this->getConnection()->setMutation($this->mutation);
+			if (!$mutation && $this->mutation) {
+				$prevMutation = $this->getConnection()->getMutation();
+				$this->getConnection()->setMutation($this->mutation);
+			}
 		}
 
 		if (\file_exists(\dirname(__DIR__, $rootLevel) . '/vendor/autoload.php')) {
@@ -150,10 +170,12 @@ class TemplateRepository extends Repository
 				}
 			}
 
-			$message = new Template($messageArray->getArrayCopy(), $this, $this->getConnection()->getAvailableMutations(), $this->getConnection()->getMutation());
+			$message = new Template($messageArray->getArrayCopy(), $this,
+				$this->getConnection()->getAvailableMutations(), $this->getConnection()->getMutation());
 
 			try {
-				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
+				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask,
+					$this->rootPaths, $this->globalDirectory);
 
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
@@ -163,7 +185,8 @@ class TemplateRepository extends Repository
 					return null;
 				}
 
-				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			} catch (NotExistsException $ignored) {
 				$html = $messageArray->html[$this->getConnection()->getMutation()];
 			}
@@ -200,15 +223,18 @@ class TemplateRepository extends Repository
 		} else {
 			if ($message->layout !== null) {
 				$html = "{define email_co}" . $message->html . "{/define}";
-				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask, $this->rootPaths, $this->globalDirectory);
+				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask,
+					$this->rootPaths, $this->globalDirectory);
 
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 
-				$html = $template->renderToString($globalLayout . $html, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString($globalLayout . $html,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			} else {
-				$html = $template->renderToString($message->html, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString($message->html,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 			}
 
 			$mailAddress = $message->email ?: ($this->defaultEmail ?: '');
@@ -277,7 +303,8 @@ class TemplateRepository extends Repository
 			$text = $message->getValue("text");
 
 			if ($text !== null && $text !== '') {
-				$body = $template->renderToString($text, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$body = $template->renderToString($text,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 				$mail->setBody($body);
 			}
 		} catch (NotExistsException $ignored) {
@@ -285,7 +312,7 @@ class TemplateRepository extends Repository
 
 		$mail->setHtmlBody($html);
 
-		if ($mutation || (!$mutation && $this->mutation)) {
+		if ($mutation || (!$mutation && $this->mutation) || $this->defaultMutation) {
 			$this->getConnection()->setMutation($prevMutation);
 		}
 
@@ -315,7 +342,8 @@ class TemplateRepository extends Repository
 		foreach ($this->dbTemplates as $item) {
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
-			$htmlTemplateRendered = $template->renderToString($fileContent, $params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+			$htmlTemplateRendered = $template->renderToString($fileContent,
+				$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
 
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$message->html[$key] .= $htmlTemplateRendered;
@@ -350,8 +378,13 @@ class TemplateRepository extends Repository
 	 * @param string $directory Name of directory.
 	 * @return string|null Content of file or null on error.
 	 */
-	private function getFileTemplate(string $fileName, int $rootLevel, string $mask, array $rootPaths, string $directory): ?string
-	{
+	private function getFileTemplate(
+		string $fileName,
+		int $rootLevel,
+		string $mask,
+		array $rootPaths,
+		string $directory
+	): ?string {
 		if (\strpos($mask, '%s') === false) {
 			throw new \InvalidArgumentException("Wrong file mask format!");
 		}

@@ -25,6 +25,7 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'rootPaths' => Expect::array(),
 				'messages' => Expect::array(),
 			]),
+			'defaultMutation' => Expect::string()
 		]);
 	}
 	
@@ -35,21 +36,22 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 		/** @var \Nette\DI\ContainerBuilder $builder */
 		$builder = $this->getContainerBuilder();
 		
-		$pages = $builder->addDefinition($this->prefix('db'))->setType(\Messages\DB\TemplateRepository::class);
-		$pages->addSetup('setEmailAndAlias', [$config['email'], $config['alias']]);
-		$pages->addSetup('setTemplateMapping', [
+		$templateRepository = $builder->addDefinition($this->prefix('db'))->setType(\Messages\DB\TemplateRepository::class);
+		$templateRepository->addSetup('setEmailAndAlias', [$config['email'], $config['alias']]);
+		$templateRepository->addSetup('setTemplateMapping', [
 			$config['templateMapping']->rootPaths,
 			$config['templateMapping']->directory,
 			$config['templateMapping']->fileMask,
 		]);
-		$pages->addSetup('setGlobalTemplateMapping', [
+		$templateRepository->addSetup('setGlobalTemplateMapping', [
 			$config['templateMapping']->globalDirectory,
 			$config['templateMapping']->globalFileMask,
 		]);
-		$pages->addSetup('setDbTemplates', [
+		$templateRepository->addSetup('setDbTemplates', [
 			$config['templates']->messages,
 			$config['templates']->rootPaths,
 		]);
+		$templateRepository->addSetup('setDefaultMutation', [$config['defaultMutation']]);
 		
 		return;
 	}
