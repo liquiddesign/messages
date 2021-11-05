@@ -21,7 +21,7 @@
 		"nette/component-model":"~3.0",
 		"latte/latte":"~2.0",
 		"tracy/tracy":"*",
-		"liquiddesign/storm": "^1.0",
+		"liquiddesign/storm": "~1.0",
 		"liquiddesign/forms": "@dev",
 		"ext-pdo": "*",
 		"sendgrid/sendgrid": "^4.0"
