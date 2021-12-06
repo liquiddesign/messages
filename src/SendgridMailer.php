@@ -8,6 +8,9 @@ use Nette\SmartObject;
 use SendGrid;
 use SendGrid\Email;
 
+/**
+ * @deprecated Use sendgrid-package package instead
+ */
 class SendgridMailer implements Mailer
 {
 	use SmartObject;
