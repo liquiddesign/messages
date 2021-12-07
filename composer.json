@@ -29,7 +29,7 @@
 	{
 		"nette/tester":"*",
 		"composer/composer": "*",
-		"liquiddesign/codestyle": "@dev",
+		"liquiddesign/codestyle": "~1.0",
 		"liquiddesign/migrator": "@dev",
 		"phpstan/phpstan": "*",
 		"tracy/tracy":"*"

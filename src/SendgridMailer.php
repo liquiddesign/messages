@@ -14,18 +14,20 @@ use SendGrid\Email;
 class SendgridMailer implements Mailer
 {
 	use SmartObject;
-
-	const ENDPOINT = "https://api.sendgrid.com/";
+	
+	public const ENDPOINT = "https://api.sendgrid.com/";
 
 	private string $key;
 
 	private string $tempFolder;
-
+	
+	/**
+	 * @var string[]
+	 */
 	private array $tempFiles = [];
 
 	/**
 	 * MailSender constructor
-	 *
 	 * @param string $key
 	 * @param string $tempFolder
 	 */
@@ -35,17 +37,14 @@ class SendgridMailer implements Mailer
 		$this->tempFolder = $tempFolder;
 	}
 
-	/**
-	 * @param string $key
-	 */
-	public function setKey(string $key)
+	public function setKey(string $key): void
 	{
 		$this->key = $key;
 	}
 
 	/**
-	 * @param Message $message
-	 * @throws SendGrid\Exception
+	 * @param \Nette\Mail\Message $message
+	 * @throws \SendGrid\Exception
 	 */
 	public function send(Message $message): void
 	{
@@ -73,18 +72,18 @@ class SendgridMailer implements Mailer
 			$email->addAttachment($filePath, $originalFileName);
 		}
 
-		foreach ($message->getHeader('To') as $recipient => $name) {
+		foreach (\array_keys($message->getHeader('To')) as $recipient) {
 			$email->addTo($recipient);
 		}
 
 		if ($message->getHeader('Cc')) {
-			foreach ($message->getHeader('Cc') as $recipient => $name) {
+			foreach (\array_keys($message->getHeader('Cc')) as $recipient) {
 				$email->addCc($recipient);
 			}
 		}
 
 		if ($message->getHeader('Bcc')) {
-			foreach ($message->getHeader('Bcc') as $recipient => $name) {
+			foreach (\array_keys($message->getHeader('Bcc')) as $recipient) {
 				$email->addBcc($recipient);
 			}
 		}
@@ -94,16 +93,16 @@ class SendgridMailer implements Mailer
 		$this->cleanUp();
 	}
 
-	private function saveTempAttachement($body)
+	private function saveTempAttachement($body): string
 	{
-		$filePath = $this->tempFolder . '/' . md5($body);
+		$filePath = $this->tempFolder . '/' . \md5($body);
 		\file_put_contents($filePath, $body);
 		\array_push($this->tempFiles, $filePath);
 
 		return $filePath;
 	}
 
-	private function cleanUp()
+	private function cleanUp(): void
 	{
 		foreach ($this->tempFiles as $file) {
 			if (\is_file($file)) {
@@ -111,5 +110,4 @@ class SendgridMailer implements Mailer
 			}
 		}
 	}
-
 }

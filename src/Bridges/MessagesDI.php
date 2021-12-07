@@ -25,7 +25,7 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'rootPaths' => Expect::array(),
 				'messages' => Expect::array(),
 			]),
-			'defaultMutation' => Expect::string()
+			'defaultMutation' => Expect::string(),
 		]);
 	}
 	

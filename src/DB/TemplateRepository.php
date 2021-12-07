@@ -170,12 +170,21 @@ class TemplateRepository extends Repository
 				}
 			}
 
-			$message = new Template($messageArray->getArrayCopy(), $this,
-				$this->getConnection()->getAvailableMutations(), $this->getConnection()->getMutation());
+			$message = new Template(
+				$messageArray->getArrayCopy(),
+				$this,
+				$this->getConnection()->getAvailableMutations(),
+				$this->getConnection()->getMutation(),
+			);
 
 			try {
-				$globalLayout = $this->getFileTemplate($message->getValue('layout'), $rootLevel, $this->globalFileMask,
-					$this->rootPaths, $this->globalDirectory);
+				$globalLayout = $this->getFileTemplate(
+					$message->getValue('layout'),
+					$rootLevel,
+					$this->globalFileMask,
+					$this->rootPaths,
+					$this->globalDirectory,
+				);
 
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
@@ -185,8 +194,10 @@ class TemplateRepository extends Repository
 					return null;
 				}
 
-				$html = $template->renderToString("{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout,
-					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString(
+					"{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+				);
 			} catch (NotExistsException $ignored) {
 				$html = $messageArray->html[$this->getConnection()->getMutation()];
 			}
@@ -223,18 +234,27 @@ class TemplateRepository extends Repository
 		} else {
 			if ($message->layout !== null) {
 				$html = "{define email_co}" . $message->html . "{/define}";
-				$globalLayout = $this->getFileTemplate($message->layout, $rootLevel, $this->globalFileMask,
-					$this->rootPaths, $this->globalDirectory);
+				$globalLayout = $this->getFileTemplate(
+					$message->layout,
+					$rootLevel,
+					$this->globalFileMask,
+					$this->rootPaths,
+					$this->globalDirectory,
+				);
 
 				if (!$globalLayout) {
 					throw new \InvalidArgumentException('Global template file not found!');
 				}
 
-				$html = $template->renderToString($globalLayout . $html,
-					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString(
+					$globalLayout . $html,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+				);
 			} else {
-				$html = $template->renderToString($message->html,
-					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$html = $template->renderToString(
+					$message->html,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+				);
 			}
 
 			$mailAddress = $message->email ?: ($this->defaultEmail ?: '');
@@ -303,8 +323,10 @@ class TemplateRepository extends Repository
 			$text = $message->getValue("text");
 
 			if ($text !== null && $text !== '') {
-				$body = $template->renderToString($text,
-					$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+				$body = $template->renderToString(
+					$text,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+				);
 				$mail->setBody($body);
 			}
 		} catch (NotExistsException $ignored) {
@@ -313,7 +335,9 @@ class TemplateRepository extends Repository
 		$mail->setHtmlBody($html);
 
 		if ($mutation || (!$mutation && $this->mutation) || $this->defaultMutation) {
-			$this->getConnection()->setMutation($prevMutation);
+			if (isset($prevMutation)) {
+				$this->getConnection()->setMutation($prevMutation);
+			}
 		}
 
 		return $mail;
@@ -342,8 +366,10 @@ class TemplateRepository extends Repository
 		foreach ($this->dbTemplates as $item) {
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
-			$htmlTemplateRendered = $template->renderToString($fileContent,
-				$params + ['message' => $message, 'baseUrl' => $this->baseUrl]);
+			$htmlTemplateRendered = $template->renderToString(
+				$fileContent,
+				$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+			);
 
 			foreach (\array_keys($this->schemaManager->getConnection()->getAvailableMutations()) as $key) {
 				$message->html[$key] .= $htmlTemplateRendered;
