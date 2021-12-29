@@ -22,8 +22,7 @@
 		"latte/latte":"~2.0",
 		"liquiddesign/storm": "~1.0",
 		"liquiddesign/forms": "@dev",
-		"ext-pdo": "*",
-		"sendgrid/sendgrid": "^4.0"
+		"ext-pdo": "*"
 	},
 	"require-dev": 
 	{
@@ -43,5 +42,10 @@
 		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
 		"aux-update-templates": "Messages\\Scripts::createTemplates",
 		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
