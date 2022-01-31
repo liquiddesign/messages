@@ -16,7 +16,7 @@ class ContactForm extends Form
 		
 		$this->addText('email')->setRequired()->addRule($this::EMAIL);
 		$this->addText("message");
-		$this->addAntispam('');
+		$this->addAntispam('spam');
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
@@ -24,10 +24,10 @@ class ContactForm extends Form
 			$values = $form->getValues();
 			$mailer = new Nette\Mail\SendmailMailer();
 
-			$mail = $templateRepository->createMessage("contact", ["text"=>$values->message]);
+			$mail = $templateRepository->createMessage('contact', ['text' => $values->message]);
 			$mailer->send($mail);
 			
-			$mail = $templateRepository->createMessage("contactInfo", ["text"=>$values->message], $values->email);
+			$mail = $templateRepository->createMessage('contactInfo', ['text' => $values->message], $values->email);
 			$mailer->send($mail);
 		};
 	}
