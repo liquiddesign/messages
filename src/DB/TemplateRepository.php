@@ -90,7 +90,7 @@ class TemplateRepository extends Repository
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
 		$policy = SecurityPolicy::createSafePolicy();
-		$policy->allowMacros(['include']);
+		$policy->allowTags(['include']);
 		$policy->allowProperties(\ArrayObject::class, (array)$policy::ALL);
 		$latte->setPolicy($policy);
 		$latte->setSandboxMode();

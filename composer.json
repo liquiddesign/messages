@@ -43,5 +43,10 @@
 		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
 		"aux-update-templates": "Messages\\Scripts::createTemplates",
 		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
