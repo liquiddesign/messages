@@ -124,7 +124,7 @@ class TemplateRepository extends Repository
 		$policy->allowProperties(\ArrayObject::class, (array)$policy::ALL);
 		$policy->allowProperties(Entity::class, (array)$policy::ALL);
 		$policy->allowMethods(Entity::class, (array)$policy::ALL);
-		$policy->allowFilters(['price', 'date']);
+		$policy->allowFilters(['price', 'date', 'noescape']);
 		$latte->setPolicy($policy);
 		$latte->setSandboxMode();
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
