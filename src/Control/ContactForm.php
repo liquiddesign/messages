@@ -10,24 +10,29 @@ use Nette;
 
 class ContactForm extends Form
 {
-	public function __construct(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null, ?TemplateRepository $templateRepository = null)
+	public function __construct(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null, ?TemplateRepository $templateRepository = null, ?Nette\Mail\Mailer $mailer = null)
 	{
 		parent::__construct($parent, $name);
 		
 		$this->addText('email')->setRequired()->addRule($this::EMAIL);
-		$this->addText("message");
+		$this->addText('message');
 		$this->addAntispam('spam');
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
-		$this->onSubmit[] = function (Form $form) use ($templateRepository): void {
+		$this->onSuccess[] = function (Form $form) use ($templateRepository, $mailer): void {
 			$values = $form->getValues();
-			$mailer = new Nette\Mail\SendmailMailer();
 
-			$mail = $templateRepository->createMessage('contact', ['text' => $values->message]);
+			if (!$mailer) {
+				return;
+			}
+
+			$emailVariables = ['text' => $values->message, 'email' => $values->email];
+
+			$mail = $templateRepository->createMessage('contact', $emailVariables, null, null, $values->email);
 			$mailer->send($mail);
 			
-			$mail = $templateRepository->createMessage('contactInfo', ['text' => $values->message], $values->email);
+			$mail = $templateRepository->createMessage('contactInfo', $emailVariables, $values->email);
 			$mailer->send($mail);
 		};
 	}
