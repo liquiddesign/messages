@@ -31,7 +31,7 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 	
 	public function loadConfiguration(): void
 	{
-		$config = (array)$this->getConfig();
+		$config = (array) $this->getConfig();
 		
 		/** @var \Nette\DI\ContainerBuilder $builder */
 		$builder = $this->getContainerBuilder();

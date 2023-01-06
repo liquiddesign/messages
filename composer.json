@@ -22,7 +22,8 @@
 		"latte/latte":"~2.0 || ~3.0",
 		"liquiddesign/storm": "~1.0",
 		"liquiddesign/forms": "@dev",
-		"ext-pdo": "*"
+		"ext-pdo": "*",
+		"carbondate/carbon": "^1.33"
 	},
 	"require-dev": 
 	{

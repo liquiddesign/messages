@@ -32,7 +32,7 @@ class TemplateRepository extends Repository
 	private ?string $baseUrl;
 
 	/**
-	 * @var mixed[]
+	 * @var array<mixed>
 	 */
 	private array $rootPaths = [];
 
@@ -41,12 +41,12 @@ class TemplateRepository extends Repository
 	private string $fileMask = 'email-%s.latte';
 
 	/**
-	 * @var mixed[]
+	 * @var array<mixed>
 	 */
 	private array $dbTemplates = [];
 
 	/**
-	 * @var mixed[]
+	 * @var array<mixed>
 	 */
 	private array $dbRootPaths = [];
 
@@ -120,10 +120,16 @@ class TemplateRepository extends Repository
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
 		$policy = SecurityPolicy::createSafePolicy();
-		$policy->allowTags(['include']);
-		$policy->allowProperties(\ArrayObject::class, (array)$policy::ALL);
-		$policy->allowProperties(Entity::class, (array)$policy::ALL);
-		$policy->allowMethods(Entity::class, (array)$policy::ALL);
+
+		if (\version_compare(\Latte\Engine::VERSION, '3', '<')) {
+			$policy->allowMacros(['include']);
+		} else {
+			$policy->allowTags(['include']);
+		}
+
+		$policy->allowProperties(\ArrayObject::class, (array) $policy::ALL);
+		$policy->allowProperties(Entity::class, (array) $policy::ALL);
+		$policy->allowMethods(Entity::class, (array) $policy::ALL);
 		$policy->allowFilters(['price', 'date', 'noescape']);
 		$latte->setPolicy($policy);
 		$latte->setSandboxMode();
@@ -195,7 +201,7 @@ class TemplateRepository extends Repository
 				}
 
 				$html = $template->renderToString(
-					"{define email_co}" . $messageArray->html[$this->getConnection()->getMutation()] . "{/define} " . $globalLayout,
+					'{define email_co}' . $messageArray->html[$this->getConnection()->getMutation()] . '{/define} ' . $globalLayout,
 					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
 				);
 			} catch (NotExistsException $ignored) {
@@ -218,7 +224,7 @@ class TemplateRepository extends Repository
 				$mailAddress = $message->getValue('email');
 			} catch (NotExistsException $e) {
 				if ($this->defaultEmail === null) {
-					throw new \InvalidArgumentException("No email specified!");
+					throw new \InvalidArgumentException('No email specified!');
 				}
 
 				$mailAddress = $this->defaultEmail;
@@ -233,7 +239,7 @@ class TemplateRepository extends Repository
 			$message->subject = $messageArray->subject[$this->getConnection()->getMutation()];
 		} else {
 			if ($message->layout !== null) {
-				$html = "{define email_co}" . $message->html . "{/define}";
+				$html = '{define email_co}' . $message->html . '{/define}';
 				$globalLayout = $this->getFileTemplate(
 					$message->layout,
 					$rootLevel,
@@ -262,7 +268,7 @@ class TemplateRepository extends Repository
 		}
 
 		try {
-			if ($message->getValue("active") !== true) {
+			if ($message->getValue('active') !== true) {
 				return null;
 			}
 		} catch (NotExistsException $e) {
@@ -320,7 +326,7 @@ class TemplateRepository extends Repository
 		$mail->setSubject($message->subject ?: '');
 
 		try {
-			$text = $message->getValue("text");
+			$text = $message->getValue('text');
 
 			if ($text !== null && $text !== '') {
 				$body = $template->renderToString(
@@ -412,7 +418,7 @@ class TemplateRepository extends Repository
 		string $directory
 	): ?string {
 		if (\strpos($mask, '%s') === false) {
-			throw new \InvalidArgumentException("Wrong file mask format!");
+			throw new \InvalidArgumentException('Wrong file mask format!');
 		}
 
 		$filePath = \dirname(__DIR__, $rootLevel);

@@ -21,9 +21,9 @@ class SubscribeForm extends Form
 		$this->addSubmit('submit');
 		
 		$this->onSubmit[] = function (Form $form) use ($emailRepository, $templateRepository): void {
-			$values=$form->getValues();
-			$emailRepository->createOne((array)$values + ["created" => new \DateTime()]);
-			$mail = $templateRepository->createMessage("contactInfo", [], $values->email);
+			$values = $form->getValues();
+			$emailRepository->createOne((array) $values + ['created' => new \Carbon\Carbon()]);
+			$mail = $templateRepository->createMessage('contactInfo', [], $values->email);
 			$mailer = new Nette\Mail\SendmailMailer();
 			$mailer->send($mail);
 		};
