@@ -23,7 +23,7 @@
 		"liquiddesign/storm": "~1.0",
 		"liquiddesign/forms": "@dev",
 		"ext-pdo": "*",
-		"carbondate/carbon": "^1.33"
+		"nesbot/carbon": "^2.0"
 	},
 	"require-dev": 
 	{
