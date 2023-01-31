@@ -323,7 +323,20 @@ class TemplateRepository extends Repository
 			}
 		}
 
-		$mail->setSubject($message->subject ?: '');
+		try {
+			$subject = $message->subject ?: '';
+
+			if ($subject !== null && $subject !== '') {
+				$renderedSubject = $template->renderToString(
+					$subject,
+					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
+				);
+
+				$mail->setSubject($renderedSubject);
+			}
+		} catch (NotExistsException $ignored) {
+			$mail->setSubject($message->subject ?: '');
+		}
 
 		try {
 			$text = $message->getValue('text');
