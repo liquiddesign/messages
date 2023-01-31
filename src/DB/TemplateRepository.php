@@ -334,7 +334,7 @@ class TemplateRepository extends Repository
 
 				$mail->setSubject($renderedSubject);
 			}
-		} catch (NotExistsException $ignored) {
+		} catch (\Throwable $ignored) {
 			$mail->setSubject($message->subject ?: '');
 		}
 
