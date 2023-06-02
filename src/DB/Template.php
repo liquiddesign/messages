@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
-use StORM\Entity;
+use Base\Entity\ShopEntity;
 
 /**
  * @table{"name":"messages_template"}
+ * @index{"name":"template_codeshop","unique":true,"columns":["code", "fk_shop"]}
  */
-class Template extends Entity
+class Template extends ShopEntity
 {
+	/**
+	 * @column{"unique":true}
+	 */
+	public string $code;
+
 	/**
 	 * @column
 	 */

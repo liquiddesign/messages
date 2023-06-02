@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
+use Base\ShopsConfig;
 use Latte\Loaders\StringLoader;
 use Latte\Sandbox\SecurityPolicy;
 use Nette\Application\LinkGenerator;
-use Nette\Application\UI\ITemplateFactory;
+use Nette\Application\UI\TemplateFactory;
 use Nette\Http\Request;
 use Nette\IOException;
 use Nette\Mail\Message;
 use Nette\Utils\FileSystem;
+use Nette\Utils\Strings;
 use Nette\Utils\Validators;
 use StORM\DIConnection;
 use StORM\Entity;
@@ -19,12 +21,11 @@ use StORM\Exception\NotExistsException;
 use StORM\Repository;
 use StORM\SchemaManager;
 
+/**
+ * @extends \StORM\Repository<\Messages\DB\Template>
+ */
 class TemplateRepository extends Repository
 {
-	private LinkGenerator $linkGenerator;
-
-	private ITemplateFactory $templateFactory;
-
 	private ?string $defaultEmail;
 
 	private ?string $alias;
@@ -61,14 +62,13 @@ class TemplateRepository extends Repository
 	public function __construct(
 		DIConnection $connection,
 		SchemaManager $schemaManager,
-		LinkGenerator $linkGenerator,
 		Request $request,
-		ITemplateFactory $templateFactory
+		private readonly LinkGenerator $linkGenerator,
+		private readonly TemplateFactory $templateFactory,
+		private readonly ShopsConfig $shopsConfig,
 	) {
 		parent::__construct($connection, $schemaManager);
 
-		$this->linkGenerator = $linkGenerator;
-		$this->templateFactory = $templateFactory;
 		$this->schemaManager = $schemaManager;
 
 		$this->baseUrl = $request->getUrl()->getBaseUrl();
@@ -120,12 +120,7 @@ class TemplateRepository extends Repository
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
 		$policy = SecurityPolicy::createSafePolicy();
-
-		if (\version_compare(\Latte\Engine::VERSION, '3', '<')) {
-			$policy->allowMacros(['include']);
-		} else {
-			$policy->allowTags(['include']);
-		}
+		$policy->allowTags(['include']);
 
 		$policy->allowProperties(\ArrayObject::class, (array) $policy::ALL);
 		$policy->allowProperties(Entity::class, (array) $policy::ALL);
@@ -157,10 +152,13 @@ class TemplateRepository extends Repository
 			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
 		}
 
-		/** @var \Messages\DB\Template|null $message */
-		$message = $this->one($id, false);
+		$messageCollection = $this->many()->where('this.code', $id);
+		$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
+
+		$message = $messageCollection->first();
 
 		if (!$message) {
+			/** @var \ArrayObject|\stdClass $messageArray */
 			$messageArray = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$file = $this->getFileTemplate($id, $rootLevel, $this->fileMask, $this->rootPaths, $this->directory);
 
@@ -295,7 +293,7 @@ class TemplateRepository extends Repository
 
 		if ($message->cc !== null) {
 			foreach (\explode(';', $message->cc) as $item) {
-				$tmpEmail = \trim($item);
+				$tmpEmail = Strings::trim($item);
 
 				if (!Validators::isEmail($tmpEmail)) {
 					continue;
@@ -313,7 +311,7 @@ class TemplateRepository extends Repository
 
 		if ($message->replyTo !== null) {
 			foreach (\explode(';', $message->replyTo) as $item) {
-				$tmpEmail = \trim($item);
+				$tmpEmail = Strings::trim($item);
 
 				if (!Validators::isEmail($tmpEmail)) {
 					continue;
@@ -353,7 +351,7 @@ class TemplateRepository extends Repository
 
 		$mail->setHtmlBody($html);
 
-		if ($mutation || (!$mutation && $this->mutation) || $this->defaultMutation) {
+		if ($mutation || $this->mutation || $this->defaultMutation) {
 			if (isset($prevMutation)) {
 				$this->getConnection()->setMutation($prevMutation);
 			}
@@ -383,6 +381,7 @@ class TemplateRepository extends Repository
 		}
 
 		foreach ($this->dbTemplates as $item) {
+			/** @var \ArrayObject|\stdClass $message */
 			$message = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
 			$fileContent = FileSystem::read($path . $item . '.latte');
 			$htmlTemplateRendered = $template->renderToString(
@@ -430,7 +429,7 @@ class TemplateRepository extends Repository
 		array $rootPaths,
 		string $directory
 	): ?string {
-		if (\strpos($mask, '%s') === false) {
+		if (Strings::contains($mask, '%s') === false) {
 			throw new \InvalidArgumentException('Wrong file mask format!');
 		}
 

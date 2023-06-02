@@ -1,0 +1,1 @@
+UPDATE messages_template SET code = uuid;

@@ -21,6 +21,7 @@ class ContactForm extends Form
 		$this->addSubmit('submit');
 		
 		$this->onSuccess[] = function (Form $form) use ($templateRepository, $mailer): void {
+			/** @var \stdClass $values */
 			$values = $form->getValues();
 
 			if (!$mailer) {

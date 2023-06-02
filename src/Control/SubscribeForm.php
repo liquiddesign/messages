@@ -11,8 +11,13 @@ use Nette;
 
 class SubscribeForm extends Form
 {
-	public function __construct(?\Nette\ComponentModel\IContainer $parent = null, ?string $name = null, ?EmailRepository $emailRepository = null, ?TemplateRepository $templateRepository = null)
-	{
+	public function __construct(
+		?\Nette\ComponentModel\IContainer $parent = null,
+		?string $name = null,
+		?EmailRepository $emailRepository = null,
+		?TemplateRepository $templateRepository = null,
+		?Nette\Mail\Mailer $mailer = null,
+	) {
 		parent::__construct($parent, $name);
 		
 		$this->addText('email')->setRequired()->addRule($this::EMAIL);
@@ -20,11 +25,17 @@ class SubscribeForm extends Form
 		$this->addDoubleClickProtection();
 		$this->addSubmit('submit');
 		
-		$this->onSubmit[] = function (Form $form) use ($emailRepository, $templateRepository): void {
+		$this->onSubmit[] = function (Form $form) use ($emailRepository, $templateRepository, $mailer): void {
+			/** @var \stdClass $values */
 			$values = $form->getValues();
+
+			if (!$mailer) {
+				return;
+			}
+
 			$emailRepository->createOne((array) $values + ['created' => new \Carbon\Carbon()]);
+
 			$mail = $templateRepository->createMessage('contactInfo', [], $values->email);
-			$mailer = new Nette\Mail\SendmailMailer();
 			$mailer->send($mail);
 		};
 	}
