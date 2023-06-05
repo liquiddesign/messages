@@ -13,7 +13,7 @@ use Base\Entity\ShopEntity;
 class Template extends ShopEntity
 {
 	/**
-	 * @column{"unique":true}
+	 * @column
 	 */
 	public string $code;
 
