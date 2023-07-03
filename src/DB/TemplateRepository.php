@@ -152,7 +152,7 @@ class TemplateRepository extends Repository
 			$rootLevel = \count($parsedPath) - \array_search('vendor', $parsedPath);
 		}
 
-		$messageCollection = $this->many()->where('this.code', $id);
+		$messageCollection = $this->many()->where('this.uuid = :id OR this.code = :id', ['id' => $id]);
 		$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
 
 		$message = $messageCollection->first();
