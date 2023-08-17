@@ -219,6 +219,12 @@ class TemplateRepository extends Repository
 			}
 
 			try {
+				$message->getValue('bcc');
+			} catch (NotExistsException $e) {
+				$message->bcc = null;
+			}
+
+			try {
 				$mailAddress = $message->getValue('email');
 			} catch (NotExistsException $e) {
 				if ($this->defaultEmail === null) {
@@ -300,6 +306,18 @@ class TemplateRepository extends Repository
 				}
 
 				$mail->addCc($tmpEmail);
+			}
+		}
+
+		if ($message->bcc !== null) {
+			foreach (\explode(';', $message->bcc) as $item) {
+				$tmpEmail = Strings::trim($item);
+
+				if (!Validators::isEmail($tmpEmail)) {
+					continue;
+				}
+
+				$mail->addBcc($tmpEmail);
 			}
 		}
 

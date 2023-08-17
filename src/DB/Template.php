@@ -45,6 +45,11 @@ class Template extends ShopEntity
 	/**
 	 * @column
 	 */
+	public ?string $bcc;
+
+	/**
+	 * @column
+	 */
 	public ?string $replyTo;
 	
 	/**
