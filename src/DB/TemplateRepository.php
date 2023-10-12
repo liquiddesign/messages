@@ -155,7 +155,12 @@ class TemplateRepository extends Repository
 		$messageCollection = $this->many()->where('this.code', $id);
 		$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
 
+		/** @var \Messages\DB\Template|null $message */
 		$message = $messageCollection->first();
+
+		if ($message && !$message->active) {
+			return null;
+		}
 
 		if (!$message) {
 			/** @var \ArrayObject|\stdClass $messageArray */
