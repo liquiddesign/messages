@@ -115,7 +115,8 @@ class TemplateRepository extends Repository
 		?string $email = null,
 		?string $ccEmails = null,
 		?string $replyTo = null,
-		?string $mutation = null
+		?string $mutation = null,
+		bool $checkShops = true,
 	): ?Message {
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
@@ -153,7 +154,10 @@ class TemplateRepository extends Repository
 		}
 
 		$messageCollection = $this->many()->where('this.code', $id);
-		$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
+
+		if ($checkShops) {
+			$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
+		}
 
 		/** @var \Messages\DB\Template|null $message */
 		$message = $messageCollection->first();
