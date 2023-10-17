@@ -109,6 +109,17 @@ class TemplateRepository extends Repository
 		$this->defaultMutation = $mutation;
 	}
 
+	/**
+	 * @param string $id
+	 * @param array $params
+	 * @param string|null $email
+	 * @param string|null $ccEmails
+	 * @param string|null $replyTo
+	 * @param string|null $mutation
+	 * @param bool $checkShops
+	 * @param array<int|string, \Base\DB\Shop>|null $shops
+	 * @throws \StORM\Exception\NotFoundException
+	 */
 	public function createMessage(
 		string $id,
 		array $params,
@@ -117,6 +128,7 @@ class TemplateRepository extends Repository
 		?string $replyTo = null,
 		?string $mutation = null,
 		bool $checkShops = true,
+		array|null $shops = null,
 	): ?Message {
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
@@ -156,7 +168,7 @@ class TemplateRepository extends Repository
 		$messageCollection = $this->many()->where('this.code', $id);
 
 		if ($checkShops) {
-			$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection);
+			$this->shopsConfig->filterShopsInShopEntityCollection($messageCollection, $shops);
 		}
 
 		/** @var \Messages\DB\Template|null $message */
