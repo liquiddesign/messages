@@ -10,10 +10,8 @@ class VoidMailer implements Mailer
 {
 	public function send(Message $mail): void
 	{
+		Debugger::$maxLength = 5000;
 		Debugger::barDump($mail);
-		Debugger::$maxLength = 1500;
-
-		Debugger::barDump($mail->getBody());
-		Debugger::log($mail->getBody());
+		Debugger::log($mail);
 	}
 }
