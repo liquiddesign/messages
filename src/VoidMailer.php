@@ -13,6 +13,7 @@ class VoidMailer implements Mailer
 	{
 		Debugger::barDump($mail);
 		Debugger::$maxLength = 1500;
+
 		Debugger::barDump($mail->getBody());
 		Debugger::log($mail->getBody());
 	}
