@@ -5,7 +5,6 @@ namespace Messages;
 use Nette\Mail\Mailer;
 use Nette\Mail\Message;
 use Tracy\Debugger;
-use Tracy\ILogger;
 
 class VoidMailer implements Mailer
 {
