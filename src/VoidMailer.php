@@ -12,6 +12,8 @@ class VoidMailer implements Mailer
 	public function send(Message $mail): void
 	{
 		Debugger::barDump($mail);
-		Debugger::log($mail, ILogger::DEBUG);
+		Debugger::$maxLength = 1500;
+		Debugger::barDump($mail->getBody());
+		Debugger::log($mail->getBody());
 	}
 }
