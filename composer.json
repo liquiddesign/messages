@@ -22,7 +22,7 @@
 		"nette/component-model":"~3.0",
 		"latte/latte":"~3.0",
 		"liquiddesign/storm": "~1.0",
-		"liquiddesign/forms": "^2.1.1",
+		"liquiddesign/forms": "^2.1.2",
 		"liquiddesign/base": "~2.0",
 		"ext-pdo": "*",
 		"nesbot/carbon": "^2.0"
