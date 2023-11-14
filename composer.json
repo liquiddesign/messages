@@ -9,6 +9,7 @@
 	"autoload-dev": {
 		"psr-4": { "Messages\\Tests\\": "tests/" }
 	},
+	"prefer-stable": true,
 	"require" :
 	{
 		"php":">=8.2",
