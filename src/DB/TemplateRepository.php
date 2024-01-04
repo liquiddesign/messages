@@ -11,6 +11,7 @@ use Nette\Application\LinkGenerator;
 use Nette\Application\UI\TemplateFactory;
 use Nette\Http\Request;
 use Nette\IOException;
+use Nette\Mail\Mailer;
 use Nette\Mail\Message;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
@@ -20,6 +21,8 @@ use StORM\Entity;
 use StORM\Exception\NotExistsException;
 use StORM\Repository;
 use StORM\SchemaManager;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 /**
  * @extends \StORM\Repository<\Messages\DB\Template>
@@ -66,12 +69,55 @@ class TemplateRepository extends Repository
 		private readonly LinkGenerator $linkGenerator,
 		private readonly TemplateFactory $templateFactory,
 		private readonly ShopsConfig $shopsConfig,
+		private readonly Mailer $mailer,
 	) {
 		parent::__construct($connection, $schemaManager);
 
 		$this->schemaManager = $schemaManager;
 
 		$this->baseUrl = $request->getUrl()->getBaseUrl();
+	}
+
+	/**
+	 * @param string $id
+	 * @param array $params
+	 * @param string|null $email
+	 * @param string|null $ccEmails
+	 * @param string|null $replyTo
+	 * @param string|null $mutation
+	 * @param bool $checkShops
+	 * @param array<int|string, \Base\DB\Shop>|null $shops
+	 * @throws \StORM\Exception\NotFoundException
+	 */
+	public function sendMessage(
+		string $id,
+		array $params,
+		?string $email = null,
+		?string $ccEmails = null,
+		?string $replyTo = null,
+		?string $mutation = null,
+		bool $checkShops = true,
+		array|null $shops = null,
+	): bool {
+		try {
+			$message = $this->createMessage($id, $params, $email, $ccEmails, $replyTo, $mutation, $checkShops, $shops);
+
+			if (!$message) {
+				return false;
+			}
+
+			$this->mailer->send($message);
+
+			return true;
+		} catch (\Exception $e) {
+			Debugger::log([
+				'exception' => $e->getMessage(),
+				'trace' => $e->getTraceAsString(),
+				'messageId' => \func_get_args(),
+			], ILogger::EXCEPTION);
+
+			return false;
+		}
 	}
 
 	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
