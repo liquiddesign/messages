@@ -110,11 +110,14 @@ class TemplateRepository extends Repository
 
 			return true;
 		} catch (\Exception $e) {
-			Debugger::log([
+			$exceptionData = [
 				'exception' => $e->getMessage(),
 				'trace' => $e->getTraceAsString(),
 				'messageId' => \func_get_args(),
-			], ILogger::EXCEPTION);
+			];
+
+			Debugger::barDump($exceptionData);
+			Debugger::log($exceptionData, ILogger::EXCEPTION);
 
 			return false;
 		}
