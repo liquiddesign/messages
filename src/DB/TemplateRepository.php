@@ -62,6 +62,11 @@ class TemplateRepository extends Repository
 
 	private ?string $defaultMutation = null;
 
+	/**
+	 * @var array<string>
+	 */
+	private array $developEmails = [];
+
 	public function __construct(
 		DIConnection $connection,
 		SchemaManager $schemaManager,
@@ -121,6 +126,22 @@ class TemplateRepository extends Repository
 
 			return false;
 		}
+	}
+
+	/**
+	 * @param array<string> $emails
+	 */
+	public function setDevelopEmails(array $emails): void
+	{
+		$this->developEmails = $emails;
+	}
+
+	/**
+	 * @return non-empty-list<string>|null
+	 */
+	public function getDevelopEmails(): array|null
+	{
+		return $this->developEmails ?: null;
 	}
 
 	public function setEmailAndAlias(?string $defaultEmail, ?string $alias): void
@@ -356,39 +377,48 @@ class TemplateRepository extends Repository
 			$mail->addReplyTo($replyTo);
 		}
 
-		if ($message->type === 'outgoing') {
-			$mail->setFrom($mailAddress, $alias);
-			$mail->addTo($email);
-		} else {
-			$mail->setFrom($email ?: $this->defaultEmail, $email ?: $this->defaultEmail);
-			$mail->addTo($mailAddress, $alias);
-		}
+		if (($developEmails = $this->getDevelopEmails()) !== null) {
+			$first = \array_shift($developEmails);
+			$mail->addTo($first);
 
-		if ($ccEmails) {
-			$message->cc = $ccEmails;
-		}
-
-		if ($message->cc !== null) {
-			foreach (\explode(';', $message->cc) as $item) {
-				$tmpEmail = Strings::trim($item);
-
-				if (!Validators::isEmail($tmpEmail)) {
-					continue;
-				}
-
-				$mail->addCc($tmpEmail);
+			foreach ($developEmails as $developEmail) {
+				$mail->addCc($developEmail);
 			}
-		}
+		} else {
+			if ($message->type === 'outgoing') {
+				$mail->setFrom($mailAddress, $alias);
+				$mail->addTo($email);
+			} else {
+				$mail->setFrom($email ?: $this->defaultEmail, $email ?: $this->defaultEmail);
+				$mail->addTo($mailAddress, $alias);
+			}
 
-		if ($message->bcc !== null) {
-			foreach (\explode(';', $message->bcc) as $item) {
-				$tmpEmail = Strings::trim($item);
+			if ($ccEmails) {
+				$message->cc = $ccEmails;
+			}
 
-				if (!Validators::isEmail($tmpEmail)) {
-					continue;
+			if ($message->cc !== null) {
+				foreach (\explode(';', $message->cc) as $item) {
+					$tmpEmail = Strings::trim($item);
+
+					if (!Validators::isEmail($tmpEmail)) {
+						continue;
+					}
+
+					$mail->addCc($tmpEmail);
 				}
+			}
 
-				$mail->addBcc($tmpEmail);
+			if ($message->bcc !== null) {
+				foreach (\explode(';', $message->bcc) as $item) {
+					$tmpEmail = Strings::trim($item);
+
+					if (!Validators::isEmail($tmpEmail)) {
+						continue;
+					}
+
+					$mail->addBcc($tmpEmail);
+				}
 			}
 		}
 

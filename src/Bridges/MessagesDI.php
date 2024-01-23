@@ -26,6 +26,9 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 				'messages' => Expect::array(),
 			]),
 			'defaultMutation' => Expect::string(),
+			/** Production - normal behaviour, Develop - change all target emails to specified email(s) (if none - dev@lqd.cz) */
+			'mode' => Expect::anyOf('production', 'develop'),
+			'developEmails' => Expect::listOf(Expect::email()),
 		]);
 	}
 	
@@ -52,7 +55,11 @@ class MessagesDI extends \Nette\DI\CompilerExtension
 			$config['templates']->rootPaths,
 		]);
 		$templateRepository->addSetup('setDefaultMutation', [$config['defaultMutation']]);
-		
+
+		if ($config['mode'] === 'develop') {
+			$templateRepository->addSetup('setDevelopEmails', [$config['developEmails'] ?: ['dev@lqd.cz']]);
+		}
+
 		return;
 	}
 }
