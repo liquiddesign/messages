@@ -377,6 +377,12 @@ class TemplateRepository extends Repository
 			$mail->addReplyTo($replyTo);
 		}
 
+		if ($message->type === 'outgoing') {
+			$mail->setFrom($mailAddress, $alias);
+		} else {
+			$mail->setFrom($email ?: $this->defaultEmail, $email ?: $this->defaultEmail);
+		}
+
 		if (($developEmails = $this->getDevelopEmails()) !== null) {
 			$first = \array_shift($developEmails);
 			$mail->addTo($first);
@@ -386,10 +392,8 @@ class TemplateRepository extends Repository
 			}
 		} else {
 			if ($message->type === 'outgoing') {
-				$mail->setFrom($mailAddress, $alias);
 				$mail->addTo($email);
 			} else {
-				$mail->setFrom($email ?: $this->defaultEmail, $email ?: $this->defaultEmail);
 				$mail->addTo($mailAddress, $alias);
 			}
 
