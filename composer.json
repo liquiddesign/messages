@@ -45,7 +45,8 @@
 		"aux-sync-database": "Migrator\\Scripts::syncDatabase",
 		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
 		"aux-update-templates": "Messages\\Scripts::createTemplates",
-		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap"
+		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap",
+		"check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php"
 	},
 	"config": {
 		"allow-plugins": {
