@@ -444,6 +444,8 @@ class TemplateRepository extends Repository
 			}
 		}
 
+		$subjectPrefix = $this->getDevelopEmails() !== null ? '**TEST** ' : null;
+
 		try {
 			$subject = $message->subject ?: '';
 
@@ -453,10 +455,10 @@ class TemplateRepository extends Repository
 					$params + ['message' => $message, 'baseUrl' => $this->baseUrl],
 				);
 
-				$mail->setSubject($renderedSubject);
+				$mail->setSubject($subjectPrefix . $renderedSubject);
 			}
 		} catch (\Throwable $ignored) {
-			$mail->setSubject($message->subject ?: '');
+			$mail->setSubject($subjectPrefix . ($message->subject ?: ''));
 		}
 
 		try {
