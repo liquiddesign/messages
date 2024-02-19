@@ -1,62 +1,68 @@
 {
-	"name": "liquiddesign/messages",
-	"description": "✉ Služba pro generování zpráv pro Nette Mailer ze šablon z databáze",
-	"license": "MIT",
-	"autoload": {
-		"psr-4": {"Messages\\": "src/"},
-		"classmap": []
-	},
-	"autoload-dev": {
-		"psr-4": { "Messages\\Tests\\": "tests/" }
-	},
-	"prefer-stable": true,
-	"minimum-stability": "dev",
-	"require" :
-	{
-		"php":">=8.2",
-		"nette/application":"~3.1",
-		"nette/mail":"~3.1",
-		"nette/utils":"~3.2",
-		"nette/di":"~3.1",
-		"nette/security":"~3.1",
-		"nette/component-model":"~3.0",
-		"latte/latte":"~3.0",
-		"liquiddesign/storm": "~1.0",
-		"liquiddesign/forms": "^2.1.2",
-		"liquiddesign/base": "~2.0",
-		"ext-pdo": "*",
-		"nesbot/carbon": "^2.0"
-	},
-	"require-dev": 
-	{
-		"nette/tester":"^2.4",
-		"composer/composer": "^2.5",
-		"liquiddesign/codestyle": "~3.0",
-		"liquiddesign/migrator": "^1.0",
-		"phpstan/phpstan-nette": "^1.2",
-		"tracy/tracy":"^2.9"
-	},
-	"scripts": {
-		"phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
-		"phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
-		"phpcsfix": "phpcbf --standard=ruleset.xml --ignore=assets src",
-		"fix-code": "@phpcsfix",
-		"check-code": ["@phpcs", "@phpstan"],
-		"tester": "tester tests/Cases/*.phpt  -c tests/php.ini --setup tests/setup.php",
-		"aux-sync-database": "Migrator\\Scripts::syncDatabase",
-		"sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
-		"aux-update-templates": "Messages\\Scripts::createTemplates",
-		"update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap",
-		"check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php",
-		"changelog": "conventional-changelog --config=./vendor/liquiddesign/codestyle/src/changelog/changelog-config.php",
-		"release": "@changelog --commit",
-		"release:patch": "@changelog --patch --commit",
-		"release:minor": "@changelog --minor --commit",
-		"release:major": "@changelog --major --commit"
-	},
-	"config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
-	}
+    "name": "liquiddesign/messages",
+    "description": "✉ Služba pro generování zpráv pro Nette Mailer ze šablon z databáze",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Messages\\": "src/"
+        },
+        "classmap": []
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Messages\\Tests\\": "tests/"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=8.2",
+        "nette/application": "~3.1",
+        "nette/mail": "~3.1",
+        "nette/utils": "~3.2",
+        "nette/di": "~3.1",
+        "nette/security": "~3.1",
+        "nette/component-model": "~3.0",
+        "latte/latte": "~3.0",
+        "liquiddesign/storm": "~1.0",
+        "liquiddesign/forms": "^2.1.2",
+        "liquiddesign/base": "~2.0",
+        "ext-pdo": "*",
+        "nesbot/carbon": "^2.0"
+    },
+    "require-dev": {
+        "nette/tester": "^2.4",
+        "composer/composer": "^2.5",
+        "liquiddesign/codestyle": "~3.0",
+        "liquiddesign/migrator": "^1.0",
+        "phpstan/phpstan-nette": "^1.2",
+        "tracy/tracy": "^2.9"
+    },
+    "scripts": {
+        "phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
+        "phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
+        "phpcsfix": "phpcbf --standard=ruleset.xml --ignore=assets src",
+        "fix-code": "@phpcsfix",
+        "check-code": [
+            "@phpcs",
+            "@phpstan"
+        ],
+        "tester": "tester tests/Cases/*.phpt  -c tests/php.ini --setup tests/setup.php",
+        "aux-sync-database": "Migrator\\Scripts::syncDatabase",
+        "sync-database": "@aux-sync-database Messages\\Tests\\Bootstrap",
+        "aux-update-templates": "Messages\\Scripts::createTemplates",
+        "update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap",
+        "check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php",
+        "changelog": "conventional-changelog --config=./vendor/liquiddesign/codestyle/src/changelog/changelog-config.php",
+        "release": "@changelog --commit",
+        "release:patch": "@changelog --patch --commit",
+        "release:minor": "@changelog --minor --commit",
+        "release:major": "@changelog --major --commit"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "version": "2.1.19"
 }
