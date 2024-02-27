@@ -7,6 +7,7 @@ namespace Messages\Control;
 use Forms\Form;
 use Messages\DB\TemplateRepository;
 use Nette;
+use Tracy\Debugger;
 
 class ContactForm extends Form
 {
@@ -29,6 +30,8 @@ class ContactForm extends Form
 			}
 
 			$emailVariables = ['text' => $values->message, 'email' => $values->email];
+
+			Debugger::log(Nette\Utils\Json::encode($emailVariables), 'contactForm');
 
 			$mail = $templateRepository->createMessage('contact', $emailVariables, null, null, $values->email);
 			$mailer->send($mail);
