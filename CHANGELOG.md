@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.23](https://github.com/liquiddesign/messages/compare/v2.1.22...v2.1.23) (2024-03-07)
+
+### Builds
+
+* Dependency updates ([dfc168](https://github.com/liquiddesign/messages/commit/dfc1689103e3a813f8be804f166d787afb03f034))
+
+
+---
+
 ## [2.1.22](https://github.com/liquiddesign/messages/compare/v2.1.21...v2.1.22) (2024-03-07)
 
 ### Builds
