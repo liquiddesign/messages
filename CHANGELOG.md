@@ -4,6 +4,18 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.21](https://github.com/liquiddesign/messages/compare/v2.1.20...v2.1.21) (2024-03-07)
+
+### Features
+
+
+##### Template
+
+* Remove emails from cc and bcc which are same as to ([bec880](https://github.com/liquiddesign/messages/commit/bec88029d89848b84e7bd91ed6c4c8cb6a89c009))
+
+
+---
+
 ## [2.1.20](https://github.com/liquiddesign/messages/compare/v2.1.19...v2.1.20) (2024-02-27)
 
 ### Features
