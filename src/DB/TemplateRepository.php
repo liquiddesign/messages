@@ -391,11 +391,10 @@ class TemplateRepository extends Repository
 				$mail->addCc($developEmail);
 			}
 		} else {
-			if ($message->type === 'outgoing') {
-				$mail->addTo($email);
-			} else {
-				$mail->addTo($mailAddress, $alias);
-			}
+			$toEmail = $message->type === 'outgoing' ? $email : $mailAddress;
+			$alias = $message->type === 'outgoing' ? null : $alias;
+
+			$mail->addTo($toEmail, $alias);
 
 			if ($ccEmails) {
 				$message->cc = $ccEmails;
@@ -409,6 +408,10 @@ class TemplateRepository extends Repository
 						continue;
 					}
 
+					if ($tmpEmail === $toEmail) {
+						continue;
+					}
+
 					$mail->addCc($tmpEmail);
 				}
 			}
@@ -418,6 +421,10 @@ class TemplateRepository extends Repository
 					$tmpEmail = Strings::trim($item);
 
 					if (!Validators::isEmail($tmpEmail)) {
+						continue;
+					}
+
+					if ($tmpEmail === $toEmail) {
 						continue;
 					}
 
