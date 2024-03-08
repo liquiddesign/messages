@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.24](https://github.com/liquiddesign/messages/compare/v2.1.23...v2.1.24) (2024-03-08)
+
+### Builds
+
+* Dependency PHP 8.1 ([5e6f43](https://github.com/liquiddesign/messages/commit/5e6f43e0e79470420b4f1db2b49164840010dda9))
+
+
+---
+
 ## [2.1.23](https://github.com/liquiddesign/messages/compare/v2.1.22...v2.1.23) (2024-03-07)
 
 ### Builds
