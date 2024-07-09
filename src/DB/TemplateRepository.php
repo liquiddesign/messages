@@ -451,7 +451,8 @@ class TemplateRepository extends Repository
 			}
 		}
 
-		$subjectPrefix = $this->getDevelopEmails() !== null ? '**TEST** ' : null;
+		$testToEmail = $message->type === 'outgoing' ? $email : $mailAddress;
+		$subjectPrefix = $this->getDevelopEmails() !== null ? "**TEST->($testToEmail)** " : null;
 
 		try {
 			$subject = $message->subject ?: '';
