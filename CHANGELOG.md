@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.26](https://github.com/liquiddesign/messages/compare/v2.1.25...v2.1.26) (2024-07-09)
+
+### Features
+
+* Add recipient to test email subject prefix ([f068b0](https://github.com/liquiddesign/messages/commit/f068b049d10e41700615b872f94120176bbfe4c7))
+
+
+---
+
 ## [2.1.25](https://github.com/liquiddesign/messages/compare/v2.1.24...v2.1.25) (2024-03-08)
 
 ### Builds
