@@ -209,7 +209,7 @@ class TemplateRepository extends Repository
 		$policy->allowProperties(Entity::class, (array) $policy::ALL);
 		$policy->allowMethods(Entity::class, (array) $policy::ALL);
 		$policy->allowFunctions(['explode', 'implode']);
-		$policy->allowFilters(['price', 'date', 'noescape', 'translate']);
+		$policy->allowFilters(['price', 'date', 'noescape', 'translate', 'priceSecondary']);
 		$latte->setPolicy($policy);
 		$latte->setSandboxMode();
 		$parsedPath = \explode(\DIRECTORY_SEPARATOR, __DIR__);
