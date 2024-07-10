@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.27](https://github.com/liquiddesign/messages/compare/v2.1.26...v2.1.27) (2024-07-10)
+
+### Features
+
+* Allow priceSecondary filter in Latte template policy ([d98fe4](https://github.com/liquiddesign/messages/commit/d98fe4f0ae443c5b2ffa389da133c9324de80abe))
+
+
+---
+
 ## [2.1.26](https://github.com/liquiddesign/messages/compare/v2.1.25...v2.1.26) (2024-07-09)
 
 ### Features
