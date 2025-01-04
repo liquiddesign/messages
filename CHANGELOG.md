@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.28](https://github.com/liquiddesign/messages/compare/v2.1.27...v2.1.28) (2025-01-04)
+
+### Chores
+
+* Update nette/mail dependency to support version 4.0 ([c06781](https://github.com/liquiddesign/messages/commit/c06781b9569b25eb672ad8a6ee04e5f9076fd7ab))
+
+
+---
+
 ## [2.1.27](https://github.com/liquiddesign/messages/compare/v2.1.26...v2.1.27) (2024-07-10)
 
 ### Features

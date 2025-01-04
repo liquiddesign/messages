@@ -53,7 +53,7 @@
         "aux-update-templates": "Messages\\Scripts::createTemplates",
         "update-templates": "@aux-update-templates Messages\\Tests\\Bootstrap",
         "check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php",
-        "changelog": "conventional-changelog --config=./vendor/liquiddesign/codestyle/src/changelog/changelog-config.php",
+        "changelog": "@php conventional-changelog --config=./vendor/liquiddesign/codestyle/src/changelog/changelog-config.php",
         "release": "@changelog --commit",
         "release:patch": "@changelog --patch --commit",
         "release:minor": "@changelog --minor --commit",
@@ -64,5 +64,5 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
-    "version": "2.1.27"
+    "version": "2.1.28"
 }
