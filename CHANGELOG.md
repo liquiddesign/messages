@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.29](https://github.com/liquiddesign/messages/compare/v2.1.28...v2.1.29) (2025-05-20)
+
+### Features
+
+* Update sendMessage and createMessage to accept Shop type in shops parameter ([b01cf1](https://github.com/liquiddesign/messages/commit/b01cf171b4c8ff022117518f8f09f37d3f841a4b))
+
+
+---
+
 ## [2.1.28](https://github.com/liquiddesign/messages/compare/v2.1.27...v2.1.28) (2025-01-04)
 
 ### Chores
