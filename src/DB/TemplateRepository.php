@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Messages\DB;
 
+use Base\DB\Shop;
 use Base\ShopsConfig;
 use Latte\Loaders\StringLoader;
 use Latte\Sandbox\SecurityPolicy;
@@ -91,7 +92,7 @@ class TemplateRepository extends Repository
 	 * @param string|null $replyTo
 	 * @param string|null $mutation
 	 * @param bool $checkShops
-	 * @param array<int|string, \Base\DB\Shop>|null $shops
+	 * @param string|array<\Base\DB\Shop|string>|null|\Base\DB\Shop $shops
 	 * @throws \StORM\Exception\NotFoundException
 	 */
 	public function sendMessage(
@@ -102,7 +103,7 @@ class TemplateRepository extends Repository
 		?string $replyTo = null,
 		?string $mutation = null,
 		bool $checkShops = true,
-		array|null $shops = null,
+		string|null|array|Shop $shops = null,
 	): bool {
 		try {
 			$message = $this->createMessage($id, $params, $email, $ccEmails, $replyTo, $mutation, $checkShops, $shops);
@@ -187,7 +188,7 @@ class TemplateRepository extends Repository
 	 * @param string|null $replyTo
 	 * @param string|null $mutation
 	 * @param bool $checkShops
-	 * @param array<int|string, \Base\DB\Shop>|null $shops
+	 * @param string|array<\Base\DB\Shop|string>|null|\Base\DB\Shop $shops
 	 * @throws \StORM\Exception\NotFoundException
 	 */
 	public function createMessage(
@@ -198,7 +199,7 @@ class TemplateRepository extends Repository
 		?string $replyTo = null,
 		?string $mutation = null,
 		bool $checkShops = true,
-		array|null $shops = null,
+		string|null|array|Shop $shops = null,
 	): ?Message {
 		$template = $this->createTemplate();
 		$latte = $template->getLatte();
