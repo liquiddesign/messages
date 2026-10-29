@@ -4,6 +4,12 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.31](https://github.com/liquiddesign/messages/compare/v2.1.30...v2.1.31) (2026-10-29)
+
+### Bug Fixes
+
+* restore `noescape` in the template sandbox policy — projects on Latte 3.0 use it in stored e-mail templates (2.1.30 broke them); on Latte 3.1 the filter stays forbidden in sandbox regardless of the policy
+
 ## [2.1.30](https://github.com/liquiddesign/messages/compare/v2.1.29...v2.1.30) (2026-10-29)
 
 ### Bug Fixes
