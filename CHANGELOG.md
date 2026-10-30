@@ -4,6 +4,12 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.32](https://github.com/liquiddesign/messages/compare/v2.1.31...v2.1.32) (2026-10-30)
+
+### Compatibility
+
+* Allow `nette/component-model` `^3.0 || ^4.0` (no code change — the package does not use the APIs removed in 4.0)
+
 ## [2.1.31](https://github.com/liquiddesign/messages/compare/v2.1.30...v2.1.31) (2026-10-29)
 
 ### Bug Fixes
